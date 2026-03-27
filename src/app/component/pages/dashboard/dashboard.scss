@@ -1,0 +1,316 @@
+// ==========================================
+// Dashboard - Component Styles
+// Uses Admiro CSS variables for consistency
+// ==========================================
+
+.dashboard-container {
+  background-color: var(--body-color);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+// Filter Card
+.filter-card {
+  border: 1px solid var(--border-color);
+
+  .filter-label {
+    font-weight: 600;
+    color: var(--gray-700);
+    font-size: 0.875rem;
+  }
+
+  .filter-select {
+    min-width: 200px;
+    max-width: 250px;
+  }
+
+  .btn-group {
+    .btn {
+      font-size: 0.8125rem;
+      padding: 6px 16px;
+    }
+  }
+}
+
+// Statistics Cards
+.stat-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .card-body {
+    padding: 20px;
+  }
+
+  .stat-icon {
+    opacity: 0.8;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+}
+
+// Project List
+.project-list {
+  .project-item {
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--light-color);
+    }
+
+    &:last-child {
+      border-bottom: none !important;
+    }
+
+    .bullet {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .project-name {
+      font-size: 0.8125rem;
+      color: var(--body-font-color);
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      min-width: 35px;
+    }
+  }
+}
+
+// Category List
+.category-list {
+  .category-item {
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--categorie-hover);
+    }
+
+    &:last-child {
+      border-bottom: none !important;
+    }
+
+    .category-bullet {
+      color: var(--body-font-color);
+      font-size: 1.125rem;
+      font-weight: bold;
+    }
+
+    span {
+      font-size: 0.8125rem;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      min-width: 35px;
+    }
+  }
+}
+
+// Type Chart Container
+.type-chart-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+// Custom Legend for Pie Chart
+.custom-legend {
+  padding: 8px;
+  background-color: var(--light-color);
+  border-radius: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    margin-bottom: 4px;
+    background-color: var(--white);
+    border-radius: 6px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--gray-200);
+      transform: translateX(3px);
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .legend-color {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      margin-right: 10px;
+      flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .legend-text {
+      font-size: 0.75rem;
+      color: var(--body-font-color);
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .legend-count {
+      font-size: 0.6875rem;
+      color: var(--light-text);
+      font-weight: 600;
+      margin-left: 8px;
+      background-color: var(--gray-200);
+      padding: 2px 6px;
+      border-radius: 10px;
+    }
+  }
+
+  // Scrollbar styling
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--light-color);
+    border-radius: 2px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-color);
+    border-radius: 2px;
+  }
+}
+
+// Speed Legend
+.speed-legend {
+  padding: 10px;
+  background-color: var(--light-color);
+  border-radius: 8px;
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  small {
+    font-size: 0.75rem;
+    color: var(--light-text);
+  }
+}
+
+// Insight Card
+.insight-card {
+  .insight-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      color: var(--body-font-color);
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--border-color);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      i {
+        font-size: 0.875rem;
+      }
+    }
+  }
+}
+
+// ApexCharts Adjustments
+::ng-deep {
+  .apexcharts-legend {
+    padding: 0 !important;
+  }
+
+  .apexcharts-legend-text {
+    font-size: 0.75rem !important;
+  }
+
+  .apexcharts-datalabel {
+    font-size: 0.6875rem !important;
+  }
+}
+
+// ng-multiselect-dropdown Adjustments
+::ng-deep .multiselect-dropdown .dropdown-btn .selected-item-container .selected-item {
+  max-width: 1200px !important;
+}
+
+// Responsive Adjustments
+@media (max-width: 1200px) {
+  .stat-card {
+    .stat-value {
+      font-size: 1.625rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 12px;
+  }
+
+  .filter-card {
+    .filter-select {
+      min-width: 150px;
+      width: 100%;
+    }
+
+    .btn-group {
+      width: 100%;
+      margin-bottom: 8px;
+
+      .btn {
+        flex: 1;
+      }
+    }
+  }
+
+  .stat-card {
+    .card-body {
+      padding: 15px;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+    }
+  }
+}

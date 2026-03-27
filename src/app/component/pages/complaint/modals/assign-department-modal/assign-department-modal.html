@@ -1,0 +1,34 @@
+<div class="modal-header">
+  <h5 class="modal-title">มอบหมายหน่วยงาน</h5>
+  <button type="button" class="btn-close" (click)="activeModal.dismiss()"></button>
+</div>
+<div class="modal-body">
+  <div class="mb-3">
+    <label class="form-label">Ticket </label>
+    <p class="fw-medium">{{ subTask?.ticket_detail }}</p>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">หน่วยงานปัจจุบัน</label>
+    <p class="fw-medium">{{ subTask?.department?.department_name || '-' }}</p>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">เลือกหน่วยงาน <span class="text-danger">*</span></label>
+    <select class="form-select" [(ngModel)]="selectedDepartmentId">
+      <option value="">-- เลือกหน่วยงาน --</option>
+      @for (dept of departments; track dept.id) {
+        <option [value]="dept.id">{{ dept.department_name }}</option>
+      }
+    </select>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()">ยกเลิก</button>
+  <button type="button" class="btn btn-primary" (click)="assign()" [disabled]="loading || !selectedDepartmentId">
+    @if (loading) {
+      <span class="spinner-border spinner-border-sm me-1"></span>
+    }
+    มอบหมาย
+  </button>
+</div>

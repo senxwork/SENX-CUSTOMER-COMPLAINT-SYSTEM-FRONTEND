@@ -1,0 +1,37 @@
+<div class="modal-header">
+  <h5 class="modal-title">อัพโหลดรูปโปรไฟล์</h5>
+  <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+</div>
+
+<div class="modal-body">
+  <div class="text-center mb-4">
+    @if (previewUrl) {
+      <div class="preview-container">
+        <img [src]="previewUrl" alt="Preview" class="preview-image">
+        <button type="button" class="btn btn-sm btn-danger remove-btn" (click)="removePreview()">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    } @else {
+      <div class="placeholder-image">
+        <i class="fa fa-user fa-3x text-muted"></i>
+      </div>
+    }
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">เลือกรูปภาพ</label>
+    <input type="file" class="form-control" accept="image/*" (change)="onFileSelected($event)">
+    <small class="text-muted">รองรับไฟล์ JPG, PNG ขนาดไม่เกิน 5MB</small>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">ยกเลิก</button>
+  <button type="button" class="btn btn-primary" (click)="upload()" [disabled]="!selectedFile || loading">
+    @if (loading) {
+      <span class="spinner-border spinner-border-sm me-2"></span>
+    }
+    อัพโหลด
+  </button>
+</div>

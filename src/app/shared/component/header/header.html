@@ -1,0 +1,61 @@
+<header class="page-header row" (clickOutside)="clickOutside()">
+  <div class="logo-wrapper d-flex align-items-center col-auto">
+    <a href="index.html">
+      <img class="light-logo img-fluid" src="assets/images/logo/logo1.png" alt="logo" />
+      <img class="dark-logo img-fluid" src="assets/images/logo/logo.png" alt="logo" />
+    </a>
+    <a class="close-btn toggle-sidebar" (click)="openMenu()">
+      <svg class="svg-color">
+        <use href="assets/svg/iconly-sprite.svg#Category"></use>
+      </svg>
+    </a>
+  </div>
+  <div class="page-main-header col">
+    <div class="header-left">
+      <h4>CUSTOMER COMPLAINT SYSTEM <span style="color: brown"></span></h4>
+      <form class="form-inline search-full col" [class.open]="show === true">
+        <div class="form-group w-100">
+          <div class="Typeahead Typeahead--twitterUsers">
+            <div class="u-posRelative">
+              <div class="spinner-border Typeahead-spinner" role="status">
+                <span class="sr-only">Loading...</span>
+              </div>
+              <app-feather-icon [icon]="'x'" class="close-search" (click)="closeSearch()" />
+            </div>
+            @if (menuItems.length) {
+            <div class="Typeahead-menu custom-scrollbar" [class.is-open]="searchResult" id="search-outer" [class.open]="open">
+              @for (menuItem of menuItems | slice: 0 : 8; track menuItem) {
+              <div class="ProfileCard u-cf">
+                <div class="ProfileCard-details">
+                  <div class="ProfileCard-realName">
+                    <div class="ProfileCard-avatar">
+                      <app-svg-icon [icon]="menuItem.icon" />
+                    </div>
+                    <a [routerLink]="menuItem.path" class="realname" (click)="removeFix()">{{ menuItem.title }}</a>
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+            }
+            <div class="Typeahead-menu" [class.is-open]="searchResultEmpty">
+              <div class="tt-dataset tt-dataset-0">
+                <div class="EmptyMessage">Opps!! There are no result found.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="nav-right">
+      <ul class="header-right">
+        <li class="custom-dropdown">
+          <app-notification />
+        </li>
+        <li class="profile-nav custom-dropdown">
+          <app-profile />
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>

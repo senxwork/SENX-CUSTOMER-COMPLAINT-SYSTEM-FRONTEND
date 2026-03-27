@@ -1,0 +1,508 @@
+<!-- Header -->
+<div class="modal-header ticket-modal-header">
+  <div class="header-content">
+    <div class="header-top">
+      <span class="ticket-number-badge">{{ ticket?.ticket_number || '-' }}</span>
+      <span class="ticket-status-pill" [class]="'pill-' + ticket?.status">
+        <span class="pill-dot"></span>
+        {{ getStatusText(ticket?.status) }}
+      </span>
+      @if (ticket?.is_processed === true) {
+      <span class="header-processed-pill header-processed-pill--yes"><i class="fa fa-check-circle"></i> ดำเนินการ</span>
+      } @else if (ticket?.is_processed === false) {
+      <span class="header-processed-pill header-processed-pill--no"><i class="fa fa-times-circle"></i> ไม่ดำเนินการ</span>
+      } @else {
+      <span class="header-processed-pill header-processed-pill--unspecified"><i class="fa fa-question-circle"></i> ยังไม่ได้ระบุ</span>
+      }
+      @if (ticket?.urgent) {
+      <span class="header-processed-pill header-processed-pill--urgent"><i class="fa fa-bolt"></i> ด่วน</span>
+      }
+      <span class="header-processed-pill header-processed-pill--aging"
+        [class.header-processed-pill--aging-overdue]="isAgingOverdue(ticket?.created_at, ticket?.status)"
+        [class.header-processed-pill--aging-done]="ticket?.status === 'completed' || ticket?.status === 'cancelled'">
+        <i class="fa fa-clock-o"></i> {{ (ticket?.status === 'completed' || ticket?.status === 'cancelled') ? getAgingDays(ticket?.created_at, ticket?.completed_at || ticket?.updated_at) : getAgingDays(ticket?.created_at) }} วัน
+      </span>
+      <span class="header-date"><i class="fa fa-calendar-o"></i> {{ ticket?.created_at | dateThai:'datetime' }}</span>
+      <span class="header-processed-pill header-processed-pill--due-date" [class.header-processed-pill--overdue]="isAgingOverdue(ticket?.created_at, ticket?.status)">
+        <i class="fa fa-calendar-times-o"></i> ครบกำหนด: {{ getDueDate(ticket) | dateThai:'short' }}
+      </span>
+      @if (ticket?.status === 'completed' || ticket?.status === 'cancelled') {
+      <span class="header-processed-pill header-processed-pill--closed-date">
+        <i class="fa fa-calendar-check-o"></i> ปิดเมื่อ: {{ (ticket?.completed_at || ticket?.updated_at) | dateThai:'short' }}
+      </span>
+      }
+    </div>
+  </div>
+  <button type="button" class="btn-modal-close" (click)="activeModal.close(hasUpdated ? 'updated' : null)">
+    <i class="fa fa-times"></i>
+  </button>
+</div>
+
+<div class="modal-body ticket-modal-body">
+  <!-- Description -->
+  @if (ticket?.ticket_detail) {
+  <div class="info-description">
+    <div class="info-desc-header">
+      <div class="info-desc-label">รายละเอียดงาน</div>
+      @if (parentStatus !== 'completed') {
+      <div class="info-desc-actions">
+        <!-- Status Dropdown -->
+        <div class="status-dropdown" ngbDropdown *hasPermission="'approved_ticket'">
+          <button class="action-chip action-chip--dropdown" ngbDropdownToggle [disabled]="changingStatus">
+            @if (changingStatus) {
+            <span class="spinner-border spinner-border-sm"></span>
+            } @else {
+            <i class="fa" [class]="getStatusOption(ticket?.status).icon" [style.color]="getStatusOption(ticket?.status).color"></i>
+            }
+            <span>{{ getStatusOption(ticket?.status).label }}</span>
+            <i class="fa fa-chevron-down dropdown-arrow" style="font-size: 0.6rem; opacity: 0.7; margin-left: 8px;"></i>
+          </button>
+          <div ngbDropdownMenu class="status-dropdown-menu">
+            @for (status of statusOptions; track status.value) {
+            <button ngbDropdownItem class="status-dropdown-item" [class.active]="ticket?.status === status.value" (click)="changeStatus(status.value)">
+              <i class="fa" [class]="status.icon" [style.color]="status.color"></i>
+              <span>{{ status.label }}</span>
+              @if (ticket?.status === status.value) {
+              <i class="fa fa-check status-check"></i>
+              }
+            </button>
+            }
+          </div>
+        </div>
+
+        <!-- Urgent Dropdown -->
+        <div class="status-dropdown" ngbDropdown *hasPermission="'edit_ticket'">
+          <button class="action-chip action-chip--dropdown" [class.action-chip--urgent-active]="ticket?.urgent" ngbDropdownToggle [disabled]="changingUrgent">
+            @if (changingUrgent) {
+            <span class="spinner-border spinner-border-sm"></span>
+            } @else {
+            <i class="fa fa-bolt" [style.color]="ticket?.urgent ? '#dc2626' : '#64748b'"></i>
+            }
+            <span>{{ ticket?.urgent ? 'ด่วน' : 'ไม่ด่วน' }}</span>
+            <i class="fa fa-chevron-down dropdown-arrow" style="font-size: 0.6rem; opacity: 0.7; margin-left: 8px;"></i>
+          </button>
+          <div ngbDropdownMenu class="status-dropdown-menu">
+            <button ngbDropdownItem class="status-dropdown-item" [class.active]="ticket?.urgent === true" (click)="setUrgent(true)">
+              <i class="fa fa-bolt" style="color: #dc2626;"></i>
+              <span>ด่วน</span>
+              @if (ticket?.urgent === true) {
+              <i class="fa fa-check status-check"></i>
+              }
+            </button>
+            <button ngbDropdownItem class="status-dropdown-item" [class.active]="!ticket?.urgent" (click)="setUrgent(false)">
+              <i class="fa fa-bolt" style="color: #94a3b8;"></i>
+              <span>ไม่ด่วน</span>
+              @if (!ticket?.urgent) {
+              <i class="fa fa-check status-check"></i>
+              }
+            </button>
+          </div>
+        </div>
+
+        <!-- Processed Dropdown -->
+        <div class="status-dropdown" ngbDropdown *hasPermission="'approved_ticket'">
+          <button class="action-chip action-chip--dropdown" [class.action-chip--processed-yes]="ticket?.is_processed === true" [class.action-chip--processed-no]="ticket?.is_processed === false" ngbDropdownToggle [disabled]="changingProcessed">
+            @if (changingProcessed) {
+            <span class="spinner-border spinner-border-sm"></span>
+            } @else {
+            <i class="fa" [class.fa-check-circle]="ticket?.is_processed === true" [class.fa-times-circle]="ticket?.is_processed === false" [class.fa-question-circle]="ticket?.is_processed !== true && ticket?.is_processed !== false" [style.color]="ticket?.is_processed === true ? '#10b981' : ticket?.is_processed === false ? '#dc2626' : '#94a3b8'"></i>
+            }
+            <span>{{ ticket?.is_processed === true ? 'ดำเนินการ' : ticket?.is_processed === false ? 'ไม่ดำเนินการ' : 'ยังไม่ระบุ' }}</span>
+            <i class="fa fa-chevron-down dropdown-arrow" style="font-size: 0.6rem; opacity: 0.7; margin-left: 8px;"></i>
+          </button>
+          <div ngbDropdownMenu class="status-dropdown-menu">
+            <button ngbDropdownItem class="status-dropdown-item" [class.active]="ticket?.is_processed === true" (click)="setProcessed(true)">
+              <i class="fa fa-check-circle" style="color: #10b981;"></i>
+              <span>ดำเนินการ</span>
+              @if (ticket?.is_processed === true) {
+              <i class="fa fa-check status-check"></i>
+              }
+            </button>
+            <button ngbDropdownItem class="status-dropdown-item" [class.active]="ticket?.is_processed === false" (click)="setProcessed(false)">
+              <i class="fa fa-times-circle" style="color: #dc2626;"></i>
+              <span>ไม่ดำเนินการ</span>
+              @if (ticket?.is_processed === false) {
+              <i class="fa fa-check status-check"></i>
+              }
+            </button>
+          </div>
+        </div>
+
+        <!-- Re Open Button (only when completed) -->
+        @if (ticket?.status === 'completed') {
+        <button class="action-chip action-chip--yellow" (click)="reopenTicket()" *hasPermission="'approved_ticket'" [disabled]="reopening">
+          @if (reopening) {
+          <span class="spinner-border spinner-border-sm"></span>
+          }
+          <i class="fa fa-undo"></i>
+          <span>Re Open</span>
+        </button>
+        }
+      </div>
+      }
+    </div>
+    <div style="display: inline-block; max-width: 80%; word-break: break-word; white-space: normal;font-weight: 600;"class="ticket-description">{{ ticket.ticket_detail }}</div>
+  </div>
+  }
+
+  <!-- Info Cards -->
+  <div class="info-cards">
+    <!-- หมวดหมู่ -->
+    <div class="info-card info-card--with-btn">
+      <div class="info-card__main">
+        <div class="info-card__label"><i class="fa fa-folder-o"></i> หมวดหมู่</div>
+        <div class="info-card__value" [class.info-card__value--warning]="!ticket?.ticketCategory">
+          {{ ticket?.ticketCategory?.category_name || 'ยังไม่ได้กำหนด' }}
+        </div>
+      </div>
+      @if (parentStatus !== 'completed') {
+      <button class="info-card__btn info-card__btn--text" (click)="openCategoryModal()" *hasPermission="'edit_ticket'">
+        <i class="fa fa-pencil"></i>
+        <span>แก้ไข</span>
+      </button>
+      }
+    </div>
+    <!-- ประเภทเรื่อง -->
+    <div class="info-card">
+      <div class="info-card__label"><i class="fa fa-file-text-o"></i> ประเภทเรื่อง</div>
+      <div class="info-card__value">{{ ticket?.ticketSubCategory?.sub_category_name || '-' }}</div>
+    </div>
+    <!-- หน่วยงานที่รับผิดชอบ -->
+    <div class="info-card info-card--with-btn">
+      <div class="info-card__main">
+        <div class="info-card__label"><i class="fa fa-building-o"></i> หน่วยงานที่รับผิดชอบ</div>
+        <div class="info-card__value" [class.info-card__value--warning]="!ticket?.department">
+          @if (ticket?.department) {
+          {{ ticket.department.department_name }}
+          } @else {
+          <i class="fa fa-exclamation-circle"></i> ยังไม่ได้มอบหมาย
+          }
+        </div>
+      </div>
+      @if (parentStatus !== 'completed') {
+      <button class="info-card__btn info-card__btn--text" (click)="openAssignDepartmentModal()" *hasPermission="'approved_ticket'">
+        <i class="fa fa-pencil"></i>
+        <span>แก้ไข</span>
+      </button>
+      }
+    </div>
+  </div>
+
+  <!-- Expense Section -->
+  <div class="expense-section">
+    <button class="expense-toggle-btn" (click)="expensePanelOpen = !expensePanelOpen">
+      <div class="expense-toggle-left">
+        <i class="fa fa-money"></i>
+        <span>ค่าใช้จ่าย</span>
+        @if (ticket?.expense_amount) {
+        <span class="expense-amount-badge">{{ ticket.expense_amount | number:'1.0-0' }} บาท</span>
+        }
+      </div>
+      <div class="expense-toggle-right">
+        @if (parentStatus !== 'completed') {
+        <button class="expense-edit-btn" (click)="openExpenseModal(); $event.stopPropagation()" *hasPermission="'edit_ticket'">
+          <i class="fa" [class.fa-plus]="!ticket?.expense_amount" [class.fa-pencil]="ticket?.expense_amount"></i>
+          <span>{{ ticket?.expense_amount ? 'แก้ไข' : 'เพิ่ม' }}</span>
+        </button>
+        }
+        <i class="fa" [class.fa-chevron-down]="!expensePanelOpen" [class.fa-chevron-up]="expensePanelOpen"></i>
+      </div>
+    </button>
+    @if (expensePanelOpen) {
+      @if (ticket?.expense_amount) {
+      <div class="expense-body">
+        <div class="expense-amount-display">{{ ticket.expense_amount | number:'1.2-2' }} <span class="expense-currency">บาท</span></div>
+        @if (ticket?.expense_description) {
+        <div class="expense-description">{{ ticket.expense_description }}</div>
+        }
+        <div class="expense-meta">
+          @if (ticket?.expense_recorded_by) {
+          <span class="expense-meta-item"><i class="fa fa-user-o"></i> {{ ticket.expense_recorded_by }}</span>
+          }
+          @if (ticket?.expense_date) {
+          <span class="expense-meta-item"><i class="fa fa-calendar-o"></i> {{ ticket.expense_date | dateThai:'datetime' }}</span>
+          }
+        </div>
+      </div>
+      } @else {
+      <div class="expense-body expense-body--empty">
+        <span class="expense-empty-text">ยังไม่มีค่าใช้จ่าย</span>
+      </div>
+      }
+    }
+  </div>
+
+  <!-- Repair Request Detail (expandable) -->
+  @if (ticket?.repair_request_id) {
+  <div class="repair-section">
+    <button class="repair-toggle-btn" (click)="viewRepairDetail()" [disabled]="loadingRepair">
+      <div class="repair-toggle-left">
+        <i class="fa fa-wrench"></i>
+        <span>{{ repairPanelOpen ? 'ซ่อนรายละเอียดแจ้งซ่อม' : 'ดูรายละเอียดแจ้งซ่อม' }}</span>
+        <span class="repair-toggle-serial">เลขที่แจ้งซ่อม: {{ ticket.repair_request_serial }}</span>
+      </div>
+      <div class="repair-toggle-right">
+        @if (repairDetail?.data?.attributes?.status) {
+        <span class="repair-toggle-status repair-status-badge" [ngClass]="getRepairStatusClass(repairDetail.data.attributes.status)">{{ getRepairStatusText(repairDetail.data.attributes.status) }}</span>
+        }
+        @if (loadingRepair) {
+        <span class="spinner-border spinner-border-sm"></span>
+        } @else {
+        <i class="fa" [class.fa-chevron-down]="!repairPanelOpen" [class.fa-chevron-up]="repairPanelOpen"></i>
+        }
+      </div>
+    </button>
+
+    @if (repairPanelOpen && repairDetail) {
+    <div class="repair-panel">
+      <!-- Tabs -->
+      <div class="repair-tabs">
+        <button class="repair-tab" [class.repair-tab--active]="repairTab === 'info'" (click)="repairTab = 'info'">
+          <i class="fa fa-info-circle"></i> ข้อมูล
+        </button>
+        <button class="repair-tab" [class.repair-tab--active]="repairTab === 'timeline'" (click)="repairTab = 'timeline'">
+          <i class="fa fa-history"></i> Timeline
+          @if (getRepairStatusLogs().length) {
+          <span class="repair-tab-count">{{ getRepairStatusLogs().length }}</span>
+          }
+        </button>
+        <button class="repair-tab" [class.repair-tab--active]="repairTab === 'notes'" (click)="repairTab = 'notes'">
+          <i class="fa fa-sticky-note-o"></i> Notes
+          @if (getRepairNotes().length) {
+          <span class="repair-tab-count">{{ getRepairNotes().length }}</span>
+          }
+        </button>
+      </div>
+
+      <!-- Tab: Info -->
+      @if (repairTab === 'info') {
+      <div class="repair-info-grid">
+        <div class="repair-info-item">
+          <span class="repair-info-label">เลขที่แจ้งซ่อม</span>
+          <span class="repair-info-value repair-info-value--mono">{{ repairDetail.data?.attributes?.serialNumber || '-' }}</span>
+        </div>
+        <div class="repair-info-item">
+          <span class="repair-info-label">สถานะ</span>
+          <span class="repair-info-value">
+            <span class="repair-status-badge" [ngClass]="getRepairStatusClass(repairDetail.data?.attributes?.status)">{{ getRepairStatusText(repairDetail.data?.attributes?.status) || '-' }}</span>
+          </span>
+        </div>
+        <div class="repair-info-item">
+          <span class="repair-info-label">เลขที่ห้อง/บ้านเลขที่</span>
+          <span class="repair-info-value">{{ repairDetail.data?.attributes?.address?.houseNumber || '-' }}</span>
+        </div>
+        <div class="repair-info-item">
+          <span class="repair-info-label">ชื่อ</span>
+          <span class="repair-info-value">{{ repairDetail.data?.attributes?.name || '-' }}</span>
+        </div>
+        <div class="repair-info-item">
+          <span class="repair-info-label">เบอร์โทร</span>
+          <span class="repair-info-value">{{ repairDetail.data?.attributes?.tel || '-' }}</span>
+        </div>
+        <div class="repair-info-item repair-info-item--full">
+          <span class="repair-info-label">รายละเอียด</span>
+          <span class="repair-info-value" style="white-space: pre-line;">{{ repairDetail.data?.attributes?.issueDescription || '-' }}</span>
+        </div>
+        <div class="repair-info-item">
+          <span class="repair-info-label">วันที่สร้าง</span>
+          <span class="repair-info-value">{{ repairDetail.data?.attributes?.createdAt | dateThai:'datetime' }}</span>
+        </div>
+        <div class="repair-info-item">
+          <span class="repair-info-label">วันที่อัพเดต</span>
+          <span class="repair-info-value">{{ repairDetail.data?.attributes?.updatedAt | dateThai:'datetime' }}</span>
+        </div>
+        @if (repairDetail.data?.attributes?.serviceDate) {
+        <div class="repair-info-item">
+          <span class="repair-info-label">วันนัดซ่อม</span>
+          <span class="repair-info-value">{{ repairDetail.data?.attributes?.serviceDate | dateThai:'date' }}</span>
+        </div>
+        }
+        @if (repairDetail.data?.attributes?.serviceTime) {
+        <div class="repair-info-item">
+          <span class="repair-info-label">เวลานัดซ่อม</span>
+          <span class="repair-info-value">{{ repairDetail.data?.attributes?.serviceTime }}</span>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- Tab: Timeline (status_logs) -->
+      @if (repairTab === 'timeline') {
+      <div class="repair-timeline">
+        @if (getRepairStatusLogs().length > 0) {
+          @for (log of getRepairStatusLogs(); track log.id) {
+          <div class="repair-tl-item">
+            <div class="repair-tl-dot"></div>
+            <div class="repair-tl-content">
+              <div class="repair-tl-desc" [innerHTML]="log.attributes?.description || log.description || '-'"></div>
+              <div class="repair-tl-meta">
+                @if (log.attributes?.originalStatus || log.originalStatus) {
+                <span class="repair-tl-status repair-status-badge" [ngClass]="getRepairStatusClass(log.attributes?.originalStatus || log.originalStatus)">{{ getRepairStatusTexts(log.attributes?.originalStatus || log.originalStatus) }}</span>
+                }
+                <span class="repair-tl-date">{{ (log.attributes?.createdAt || log.createdAt) | dateThai:'datetime' }}</span>
+              </div>
+            </div>
+          </div>
+          }
+        } @else {
+        <div class="repair-empty"><i class="fa fa-clock-o"></i> ยังไม่มี Timeline</div>
+        }
+      </div>
+      }
+
+      <!-- Tab: Notes -->
+      @if (repairTab === 'notes') {
+      <div class="repair-notes">
+        @if (getRepairNotes().length > 0) {
+          @for (n of getRepairNotes(); track n.id) {
+          <div class="repair-note-item">
+            <div class="repair-note-icon"><i class="fa fa-sticky-note"></i></div>
+            <div class="repair-note-body">
+              <div class="repair-note-text">{{ n.content }}</div>
+              <div class="repair-note-date">{{ n.createdDate | dateThai:'datetime' }}</div>
+            </div>
+          </div>
+          }
+        } @else {
+        <div class="repair-empty"><i class="fa fa-sticky-note-o"></i> ยังไม่มี Notes</div>
+        }
+      </div>
+      }
+    </div>
+    }
+  </div>
+  }
+
+
+  <!-- Comments / Timeline -->
+  <div class="comments-section">
+    <button class="comments-toggle-btn" (click)="commentsPanelOpen = !commentsPanelOpen">
+      <div class="comments-toggle-left">
+        <i class="fa fa-comments-o"></i>
+        <span>บันทึกการดำเนินการ</span>
+        <span class="comments-count-badge">{{ ticket?.subTaskTransactions?.length || 0 }}</span>
+      </div>
+      <div class="comments-toggle-right">
+        <i class="fa" [class.fa-chevron-down]="!commentsPanelOpen" [class.fa-chevron-up]="commentsPanelOpen"></i>
+      </div>
+    </button>
+
+    @if (commentsPanelOpen) {
+      @if (ticket?.subTaskTransactions?.length > 0) {
+      <div class="timeline-list">
+        @for (tx of ticket.subTaskTransactions | orderByDate:'created_at':'desc'; track tx.id) {
+        <div class="timeline-item" [class.timeline-item-external]="tx.commenter_name">
+          <div class="timeline-avatar" [class.timeline-avatar-external]="tx.commenter_name">
+            <i class="fa" [class.fa-user]="!tx.commenter_name" [class.fa-user-o]="tx.commenter_name"></i>
+          </div>
+          <div class="timeline-body">
+            <p class="timeline-text">{{ tx.transaction_detail }}</p>
+            <div class="timeline-footer">
+              @if (tx.commenter_name) {
+              <span class="timeline-author timeline-author-external"><i class="fa fa-external-link"></i> โดย : {{ tx.commenter_name }} (ภายนอก)</span>
+              } @else {
+              <span class="timeline-author">โดย : {{ tx.user_created?.first_name_last_name || 'ระบบ' }}</span>
+              }
+              <span class="timeline-date">{{ tx.created_at | dateThai:'datetime' }}</span>
+            </div>
+            @if (tx.attachedFiles?.length > 0) {
+            <div class="timeline-files">
+              @for (file of tx.attachedFiles; track file.id) {
+                @if (isImageFile(file.file_name)) {
+                <!-- Image thumbnail -->
+                <a [href]="getTransactionFileUrl(file.file_name)" target="_blank" class="file-thumbnail">
+                  <img [src]="getTransactionFileUrl(file.file_name)" [alt]="file.file_name" />
+                </a>
+                } @else if (isPdfFile(file.file_name)) {
+                <!-- PDF file -->
+                <a [href]="getTransactionFileUrl(file.file_name)" target="_blank" class="file-pdf-thumb" [title]="file.file_name">
+                  <i class="fa fa-file-pdf-o"></i>
+                </a>
+                } @else {
+                <!-- Other file -->
+                <a [href]="getTransactionFileUrl(file.file_name)" target="_blank" class="file-chip">
+                  <i class="fa fa-paperclip"></i>
+                  <span>{{ file.file_name }}</span>
+                </a>
+                }
+              }
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="no-comments">
+        <i class="fa fa-comment-o"></i>
+        <span>ยังไม่มีบันทึก</span>
+      </div>
+      }
+
+      <!-- Add Comment -->
+      @if (parentStatus !== 'completed') {
+      <div class="comment-input-section" *hasPermission="'create_ticket'">
+        <textarea class="comment-textarea" rows="3" [(ngModel)]="comment" placeholder="เพิ่มบันทึกการดำเนินการ..."></textarea>
+        <div class="comment-toolbar">
+          <label class="attach-btn">
+            <i class="fa fa-paperclip"></i>
+            <span>แนบไฟล์</span>
+            <input type="file" multiple hidden accept="image/*,.pdf" (change)="onFilesSelected($event)" />
+          </label>
+          <button class="send-btn" (click)="addComment()" [disabled]="loading || !comment.trim()">
+            @if (loading) {
+            <span class="spinner-border spinner-border-sm me-1"></span>
+            }
+            <i class="fa fa-paper-plane"></i>
+            <span>ส่ง</span>
+          </button>
+        </div>
+        @if (commentFiles.length > 0) {
+        <div class="attached-files-list">
+          @for (file of commentFiles; track file.name; let i = $index) {
+          <span class="attached-file">
+            <i class="fa fa-file-o"></i>
+            <span>{{ file.name }}</span>
+            <button type="button" class="remove-file-btn" (click)="removeFile(i)">
+              <i class="fa fa-times"></i>
+            </button>
+          </span>
+          }
+        </div>
+        }
+      </div>
+      }
+    }
+  </div>
+
+  <!-- บันทึกปิดงาน -->
+  @if (ticket?.status !== 'completed' && ticket?.status !== 'cancelled') {
+    @if (!confirmingCloseJob) {
+    <div class="close-job-section">
+      <button class="close-job-btn" (click)="showCloseJobConfirm()" [disabled]="loading">
+        <i class="fa fa-check-circle"></i>
+        <span>บันทึกปิดงาน</span>
+      </button>
+    </div>
+    } @else {
+    <div class="close-job-confirm">
+      <div class="close-job-confirm-icon">
+        <i class="fa fa-exclamation-triangle"></i>
+      </div>
+      <div class="close-job-confirm-text">
+        <strong>ยืนยันบันทึกปิดงาน?</strong>
+        <span>Ticket จะถูกเปลี่ยนสถานะเป็น Completed</span>
+      </div>
+      <div class="close-job-confirm-actions">
+        <button class="btn-confirm-cancel" (click)="cancelCloseJob()">ยกเลิก</button>
+        <button class="btn-confirm-ok" (click)="closeJob()" [disabled]="loading">
+          @if (loading) {
+          <span class="spinner-border spinner-border-sm me-1"></span>
+          }
+          ยืนยันปิดงาน
+        </button>
+      </div>
+    </div>
+    }
+  }
+</div>

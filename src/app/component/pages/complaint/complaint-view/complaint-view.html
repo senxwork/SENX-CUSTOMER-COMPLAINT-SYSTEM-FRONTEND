@@ -1,0 +1,562 @@
+@if (complaint) {
+<div class="container-fluid">
+  <!-- Parent Banner -->
+
+  <div class="row">
+    <!-- Main Info -->
+    <div class="col-lg-5">
+      <div class="card detail-card">
+        <!-- Header -->
+        <div class="detail-card-header">
+          <div class="detail-header-top">
+            <div class="detail-header-left">
+              <h5 class="detail-title">ข้อมูลเรื่องร้องเรียน</h5>
+              <span [class]="getStatusBadgeClass(complaint.status)"> {{ getStatusText(complaint.status) }} </span>
+              <span class="badge-owner" [class.badge-owner--senx]="getCompanyLabel() === 'SENX'" [class.badge-owner--sena]="getCompanyLabel() === 'SENA'" [class.badge-owner--none]="getCompanyLabel() === 'ยังไม่ระบุเจ้าของงาน'">
+                <i class="fa fa-briefcase"></i> Owner: {{ getCompanyLabel() }}
+              </span>
+            </div>
+            <div class="detail-header-actions">
+              <button class="detail-action-btn" (click)="openUpdateStatusModal()" *hasPermission="'approved_jobdetail'"><i class="fa fa-refresh"></i> เปลี่ยนสถานะ</button>
+              @if (!checkEdit) {
+              <button class="detail-action-btn detail-action-btn--edit" (click)="enableEditMode()" *hasPermission="'edit_jobdetail'"><i class="fa fa-edit"></i> แก้ไข</button>
+              } @else {
+              <button class="detail-action-btn detail-action-btn--save" (click)="saveEdit()" [disabled]="savingEdit">
+                @if (savingEdit) {
+                <span class="spinner-border spinner-border-sm"></span>
+                }
+                <i class="fa fa-save"></i> บันทึก
+              </button>
+              <button class="detail-action-btn" (click)="cancelEdit()" [disabled]="savingEdit">ยกเลิก</button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-card-body">
+          <!-- Case Number -->
+          <div class="case-number-bar">
+            <div class="case-number-left">
+              <span class="case-label">เลขที่ Case:</span>
+              <span class="case-value">{{ complaint.case_number || '-' }}</span>
+            </div>
+            <div class="case-number-right">
+              <span class="case-label"><i class="fa fa-comments-o"></i> ช่องทาง:</span>
+              @if (checkEdit) {
+              <ng-multiselect-dropdown
+                class="channel-dropdown-inline"
+                [placeholder]="'เลือกช่องทาง'"
+                [settings]="channelDropdownSettings"
+                [data]="contactChannels"
+                [(ngModel)]="selectedChannel">
+              </ng-multiselect-dropdown>
+              } @else {
+              <span class="case-value">{{ complaint.contactChannel?.channel_name || '-' }}</span>
+              }
+            </div>
+          </div>
+
+          <!-- Info Grid -->
+          <div class="detail-info-grid">
+            <!-- ลูกค้า -->
+            <div class="detail-field">
+              <label class="detail-field-label"><i class="fa fa-user-o"></i> ลูกค้า</label>
+              @if (checkEdit) {
+              <input type="text" class="form-control form-control-sm detail-input" [(ngModel)]="editCustomerName" />
+              } @else {
+              <div class="detail-field-value">{{ complaint.customer_name || '-' }}</div>
+              }
+            </div>
+
+            <!-- โครงการ -->
+            <div class="detail-field custom-font-size">
+              <label class="detail-field-label"><i class="fa fa-map-marker"></i> โครงการ</label>
+              @if (checkEdit) {
+              <ng-multiselect-dropdown [placeholder]="'กรุณาเลือกโครงการ'" [settings]="projectDropdownSettings" [data]="projects" [(ngModel)]="selectedProject"> </ng-multiselect-dropdown>
+              } @else {
+              <div class="detail-field-value">{{ complaint.project?.project_name_th || '-' }}</div>
+              }
+            </div>
+
+            <!-- บ้านเลขที่ -->
+            <div class="detail-field">
+              <label class="detail-field-label"><i class="fa fa-home"></i> บ้านเลขที่/ห้อง</label>
+              @if (checkEdit) {
+              <input type="text" class="form-control form-control-sm detail-input" [(ngModel)]="editHouseName" />
+              } @else {
+              <div class="detail-field-value">{{ complaint.house_name || '-' }}</div>
+              }
+            </div>
+
+            <!-- เบอร์โทร + อีเมล (แบ่งครึ่ง) -->
+            <div class="detail-field detail-field--split">
+              <div class="detail-field-half">
+                <label class="detail-field-label"><i class="fa fa-phone"></i> เบอร์โทรศัพท์</label>
+                @if (checkEdit) {
+                <input type="text" class="form-control form-control-sm detail-input" [(ngModel)]="editTelephone" />
+                } @else {
+                <div class="detail-field-value">{{ complaint.telephone || '-' }}</div>
+                }
+              </div>
+              <div class="detail-field-half">
+                <label class="detail-field-label"><i class="fa fa-envelope-o"></i> อีเมล</label>
+                @if (checkEdit) {
+                <input type="text" class="form-control form-control-sm detail-input" [(ngModel)]="editEmail" />
+                } @else {
+                <div class="detail-field-value">{{ complaint.email || '-' }}</div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- รายละเอียด - ย้ายมาอยู่ตรงนี้ให้เด่นชัด -->
+          <div class="problem-highlight-section">
+            <div class="problem-highlight-header">
+              <i class="fa fa-info-circle"></i>
+              <span>รายละเอียด</span>
+            </div>
+            <div class="problem-highlight-body">
+              @if (checkEdit) {
+              <textarea class="form-control detail-input" rows="4" [(ngModel)]="editJobDetail" placeholder="รายละเอียดปัญหา..."></textarea>
+              } @else {
+              <div class="problem-highlight-text">{{ complaint.job_detail || '-' }}</div>
+              }
+            </div>
+          </div>
+
+          <!-- Footer Info -->
+          <div class="detail-footer-info">
+            <div class="detail-footer-row">
+              <div class="detail-footer-item">
+                <i class="fa fa-user"></i>
+                <span class="detail-footer-label">ผู้สร้าง:</span>
+                <span class="detail-footer-value">{{ complaint.user_created?.first_name_last_name || '-' }}</span>
+              </div>
+              <div class="detail-footer-item">
+                <i class="fa fa-calendar-o"></i>
+                <span class="detail-footer-label">วันที่สร้าง:</span>
+                <span class="detail-footer-value">{{ complaint.created_at | dateThai:'datetime' }}</span>
+              </div>
+            </div>
+            @if (complaint.responsible_persons?.length > 0) {
+            <div class="detail-footer-row">
+              <div class="detail-footer-item">
+                <i class="fa fa-users"></i>
+                <span class="detail-footer-label">ผู้รับผิดชอบ:</span>
+                <span class="detail-footer-value">
+                  @for (person of complaint.responsible_persons; track person.user_id) {
+                  {{ person.first_name_last_name }}@if (!$last) {, }
+                  }
+                </span>
+              </div>
+            </div>
+            }
+            @if (complaint.date_job_completed) {
+            <div class="detail-footer-row">
+              <div class="detail-footer-item">
+                <i class="fa fa-check-circle"></i>
+                <span class="detail-footer-label">วันที่เสร็จสิ้น:</span>
+                <span class="detail-footer-value">{{ complaint.date_job_completed | dateThai:'datetime' }}</span>
+              </div>
+            </div>
+            }
+          </div>
+
+          <!-- Attached Files -->
+          @if (complaint.complaintAttachedFile?.length > 0) {
+          <div class="detail-files-section">
+            <label class="detail-field-label"><i class="fa fa-paperclip"></i> ไฟล์แนบ</label>
+            <div class="attach-file-grid">
+              @for (file of complaint.complaintAttachedFile; track file.file_id) {
+                @if (isImageFile(file.file_name)) {
+                <a [href]="getFileUrl(file.file_name)" target="_blank" class="attach-thumbnail">
+                  <img [src]="getFileUrl(file.file_name)" [alt]="file.file_name" />
+                </a>
+                } @else if (isPdfFile(file.file_name)) {
+                <a [href]="getFileUrl(file.file_name)" target="_blank" class="attach-pdf-thumb" [title]="file.file_name">
+                  <i class="fa fa-file-pdf-o"></i>
+                </a>
+                } @else {
+                <a [href]="getFileUrl(file.file_name)" target="_blank" class="attach-file-chip">
+                  <i class="fa fa-file-o"></i>
+                  <span>{{ file.file_name }}</span>
+                </a>
+                }
+              }
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Tabs -->
+    <div class="col-lg-7">
+      <!-- Tab Navigation -->
+      <div class="card view-tabs-card">
+        <div class="card-header view-tabs-header">
+          <ul class="nav nav-tabs view-tabs">
+            <li class="nav-item">
+              <a class="nav-link" [class.active]="activeTab === 1" (click)="activeTab = 1">
+                <i class="fa fa-ticket me-1"></i>Ticket / การดำเนินการ
+                @if (children.length > 0) {
+                <span class="tab-count-badge">{{ children.length }}</span>
+                }
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [class.active]="activeTab === 2" (click)="activeTab = 2">
+                <i class="fa fa-comments-o me-1"></i>ความคิดเห็น / อัพเดท
+                @if (complaint.complaintTransaction?.length > 0) {
+                <span class="tab-count-badge">{{ complaint.complaintTransaction.length }}</span>
+                }
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [class.active]="activeTab === 3" (click)="activeTab = 3; loadActivityLogs()">
+                <i class="fa fa-history me-1"></i>ประวัติทำรายการ
+                @if (activityLogs.length > 0) {
+                <span class="tab-count-badge">{{ activityLogs.length }}</span>
+                }
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Tab 1: Ticket / การดำเนินการ -->
+      @if (activeTab === 1) {
+      <div class="card ticket-panel tab-content-card">
+        <div class="card-header ticket-panel-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+              <h5 class="mb-0">Ticket / การดำเนินการ</h5>
+              @if (children.length > 0) {
+              <span class="ticket-count-badge">{{ getStatusCount('completed') }}/{{ children.length }}</span>
+              }
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-primary" (click)="openCreateTicketModal()" [disabled]="complaint.status === 'completed'" *hasPermission="'create_ticket'">
+                <i class="fa fa-plus me-1"></i>สร้าง Ticket
+              </button>
+              <button class="btn btn-sm btn-ai-generate" (click)="openAIGenerateModal()" [disabled]="complaint.status === 'completed' || children.length > 0" *hasPermission="'create_ticket'">
+                <i class="fa fa-magic me-1"></i>AI+ Generate
+              </button>
+            </div>
+          </div>
+
+          @if (children.length > 0) {
+          <div class="ticket-stats-row">
+            <div class="stat-chip stat-chip--open">
+              <span class="stat-dot"></span>
+              <span>Open</span>
+              <strong>{{ getStatusCount('open') }}</strong>
+            </div>
+            <div class="stat-chip stat-chip--inprogress">
+              <span class="stat-dot"></span>
+              <span>In Progress</span>
+              <strong>{{ getStatusCount('inprogress') }}</strong>
+            </div>
+            <div class="stat-chip stat-chip--completed">
+              <span class="stat-dot"></span>
+              <span>Completed</span>
+              <strong>{{ getStatusCount('completed') }}</strong>
+            </div>
+          </div>
+          }
+        </div>
+
+        <div class="card-body ticket-panel-body">
+          @if (children.length > 0) {
+          <div class="ticket-list">
+            @for (child of children; track child.id; let i = $index) {
+            <div class="ticket-item"
+                 [class.ticket-item--open]="child.status === 'open'"
+                 [class.ticket-item--inprogress]="child.status === 'inprogress'"
+                 [class.ticket-item--completed]="child.status === 'completed'"
+                 [class.ticket-item--cancelled]="child.status === 'cancelled'"
+                 (click)="openTicketDetailModal(child)">
+
+              <!-- Status accent bar (left side) -->
+              <div class="ticket-accent"></div>
+
+              <div class="ticket-content">
+                <!-- Header row -->
+                <div class="ticket-header">
+                  <div class="ticket-id-group">
+                    <span class="ticket-number-wrapper">
+                      @if (ticketUnreadMap[child.id]) {
+                      <span class="ticket-noti-dot"></span>
+                      }
+                      <span class="ticket-number">{{ child.ticket_number || '#' + (i + 1) }}</span>
+                    </span>
+                    <span class="ticket-status-pill" [class]="'pill-' + child.status">
+                      <span class="pill-dot"></span>
+                      {{ getStatusText(child.status) }}
+                    </span>
+                    <span class="badge-category" [class.badge-category--warning]="!child.ticketCategory">
+                      <i class="fa fa-folder-o"></i> {{ child.ticketCategory?.category_name || 'ยังไม่ได้กำหนด' }}
+                    </span>
+                    @if (child.ticketSubCategory) {
+                    <span class="badge-sub-category">
+                      <i class="fa fa-file-text-o"></i> {{ child.ticketSubCategory.sub_category_name }}
+                    </span>
+                    }
+                    @if (child.urgent) {
+                    <span class="badge-urgent"><i class="fa fa-bolt"></i> ด่วน</span>
+                    }
+                    @if (child.is_processed === true) {
+                    <span class="badge-processed"><i class="fa fa-check-circle"></i> ดำเนินการ</span>
+                    } @else if (child.is_processed === false) {
+                    <span class="badge-not-processed"><i class="fa fa-times-circle"></i> ไม่ดำเนินการ</span>
+                    } @else {
+                    <span class="badge-unspecified"><i class="fa fa-question-circle"></i> ยังไม่ได้ระบุ</span>
+                    }
+                  </div>
+                  <div class="ticket-actions">
+                    <span class="ticket-date">
+                      <i class="fa fa-calendar-o"></i>
+                      {{ child.created_at | dateThai:'date' }}
+                    </span>
+                    @if (child.subTaskTransactions?.length > 0) {
+                    <span class="ticket-comments-count" title="ความคิดเห็น">
+                      <i class="fa fa-comment-o"></i>
+                      {{ child.subTaskTransactions.length }}
+                    </span>
+                    }
+                    @if (complaint.status !== 'completed') {
+                    <button class="ticket-edit-btn" (click)="startEditChildTitle(child); $event.stopPropagation()" *hasPermission="'edit_ticket'" title="แก้ไข">
+                      <i class="fa fa-pencil"></i>
+                    </button>
+                    }
+                  </div>
+                </div>
+
+                <!-- Title (edit mode) -->
+                @if (editingChildId === child.id) {
+                <div class="ticket-edit-inline" (click)="$event.stopPropagation()">
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="editingChildTitle" (keyup.enter)="saveChildTitle(child)" (keyup.escape)="cancelEditChildTitle()" autofocus />
+                  <div class="ticket-edit-actions">
+                    <button class="btn btn-sm btn-success" (click)="saveChildTitle(child)" title="บันทึก"><i class="fa fa-check"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary" (click)="cancelEditChildTitle()" title="ยกเลิก"><i class="fa fa-times"></i></button>
+                  </div>
+                </div>
+                }
+
+               
+
+                <!-- Description -->
+                @if (child.ticket_detail) {
+                <div style="display: inline-block; max-width: 80%; word-break: break-word; white-space: normal;font-weight: 600;"class="ticket-description">{{ child.ticket_detail }}</div>
+                }
+
+                <!-- Footer metadata -->
+                <div class="ticket-footer">
+                  <div class="ticket-footer-left">
+                    @if (child.department) {
+                    <span class="ticket-dept-label"><i class="fa fa-building-o"></i> มอบหมายให้หน่วยงาน:</span>
+                    <span class="ticket-dept-name">{{ child.department.department_name }}</span>
+                    } @else {
+                    <span class="ticket-dept-unassigned"><i class="fa fa-exclamation-circle"></i> ยังไม่ได้มอบหมายหน่วยงาน</span>
+                    }
+                    @if (child.repair_request_serial) {
+                    <div class="ticket-repair-serial">
+                      <i class="fa fa-wrench"></i> เลขที่แจ้งซ่อม: <span class="repair-serial-value">{{ child.repair_request_serial }}</span> <span class="repair-serial-source">(WECARE)</span>
+                    </div>
+                    }
+                  </div>
+                  <div class="ticket-footer-right">
+                    <span class="ticket-aging" [class.ticket-aging--overdue]="isAgingOverdue(child.created_at, child.status)" [class.ticket-aging--done]="child.status === 'completed' || child.status === 'cancelled'">
+                      <i class="fa" [class.fa-clock-o]="!isAgingOverdue(child.created_at, child.status)" [class.fa-exclamation-triangle]="isAgingOverdue(child.created_at, child.status)"></i>
+                      @if (child.status === 'completed' || child.status === 'cancelled') {
+                      <span>ระยะเวลา: {{ getAgingDays(child.created_at, child.completed_at || child.updated_at) }} วัน</span>
+                      } @else if (isAgingOverdue(child.created_at, child.status)) {
+                      <span>ระยะเวลา: เกินกำหนด {{ getAgingDays(child.created_at) }} วัน</span>
+                      } @else {
+                      <span>ระยะเวลา: {{ getAgingDays(child.created_at) }} วัน</span>
+                      }
+                    </span>
+                    <span class="tc-due-date" [class.tc-due-date--overdue]="isAgingOverdue(child.created_at, child.status)">
+                      <i class="fa fa-calendar-times-o"></i>
+                      ครบกำหนด: {{ getDueDate(child) | dateThai:'short' }}
+                    </span>
+                    @if (child.status === 'completed' || child.status === 'cancelled') {
+                    <span class="tc-closed-date">
+                      <i class="fa fa-calendar-check-o"></i>
+                      ปิดเมื่อ: {{ (child.completed_at || child.updated_at) | dateThai:'short' }}
+                    </span>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+            }
+          </div>
+          } @else {
+          <div class="ticket-empty-state">
+            <div class="empty-icon-wrapper">
+              <i class="fa fa-clipboard"></i>
+            </div>
+            <h6>ยังไม่มีรายการดำเนินการ</h6>
+            <p>สร้างรายการดำเนินการอัตโนมัติจาก AI เพื่อเริ่มต้นจัดการ Ticket</p>
+            <button class="btn btn-sm btn-ai-generate" (click)="openAIGenerateModal()" [disabled]="complaint.status === 'completed'" *hasPermission="'create_ticket'">
+              <i class="fa fa-magic me-1"></i>AI+ Generate
+            </button>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      <!-- Tab 2: ความคิดเห็น / อัพเดท -->
+      @if (activeTab === 2) {
+      <div class="card tab-content-card">
+        <div class="card-body">
+          @if (complaint.complaintTransaction?.length > 0) {
+          <div class="activity-timeline" style="max-height: 500px; overflow-y: auto">
+            @for (tx of complaint.complaintTransaction | orderByDate:'created_at':'desc'; track tx.id) {
+            <div class="activity-item">
+              <div class="activity-icon" style="background: #5b8def">
+                <i class="fa fa-comment"></i>
+              </div>
+              <div class="activity-content">
+                <div class="activity-header">
+                  <div class="activity-detail" style="font-weight: 500;">{{ tx.complaint_transaction_detail }}</div>
+                  <span class="activity-time">{{ tx.created_at | dateThai:'datetime' }}</span>
+                </div>
+                <div class="activity-user">
+                  <i class="fa fa-user-o"></i> โดย : {{ tx.user_created?.first_name_last_name || 'ระบบ' }}
+                </div>
+                @if (tx.complaintTransactionAttachedFile?.length > 0) {
+                <div class="attach-file-grid mt-2">
+                  @for (file of tx.complaintTransactionAttachedFile; track file.id) {
+                    @if (isImageFile(file.file_name)) {
+                    <a [href]="transactionService.getAttachFile(file.file_name)" target="_blank" class="attach-thumbnail attach-thumbnail--sm">
+                      <img [src]="transactionService.getAttachFile(file.file_name)" [alt]="file.file_name" />
+                    </a>
+                    } @else if (isPdfFile(file.file_name)) {
+                    <a [href]="transactionService.getAttachFile(file.file_name)" target="_blank" class="attach-pdf-thumb attach-pdf-thumb--sm" [title]="file.file_name">
+                      <i class="fa fa-file-pdf-o"></i>
+                    </a>
+                    } @else {
+                    <a [href]="transactionService.getAttachFile(file.file_name)" target="_blank" class="attach-file-chip" [title]="file.file_name">
+                      <i class="fa fa-paperclip"></i>
+                      <span>{{ file.file_name }}</span>
+                    </a>
+                    }
+                  }
+                </div>
+                }
+              </div>
+            </div>
+            }
+          </div>
+          } @else {
+          <p class="text-muted text-center py-3">ยังไม่มีความคิดเห็น</p>
+          }
+
+          <!-- Add Comment -->
+          <div class="mt-3" *hasPermission="'create_jobdetail'">
+            <textarea class="form-control" rows="3" [(ngModel)]="newComment" placeholder="เพิ่มความคิดเห็น..."></textarea>
+            <div class="mt-2">
+              <label class="btn btn-outline-secondary btn-sm">
+                <i class="fa fa-paperclip me-1"></i>แนบไฟล์
+                <input type="file" multiple hidden accept="image/*,.pdf" (change)="onCommentFilesSelected($event)" />
+              </label>
+              @if (commentFiles.length > 0) {
+              <div class="mt-2">
+                @for (file of commentFiles; track file.name; let i = $index) {
+                <span class="badge bg-info text-dark me-1 mb-1 p-2">
+                  <i class="fa fa-file me-1"></i>{{ file.name }}
+                  <button type="button" class="btn-close btn-close-sm ms-1" (click)="removeCommentFile(i)"></button>
+                </span>
+                }
+              </div>
+              }
+            </div>
+            <button class="btn btn-primary mt-2" (click)="addComment()" [disabled]="loading || !newComment.trim()">
+              @if (loading) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              }
+              <i class="fa fa-paper-plane me-1"></i>ส่ง
+            </button>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- Tab 3: ประวัติทำรายการ -->
+      @if (activeTab === 3) {
+      <div class="card tab-content-card">
+        <div class="card-body">
+          @if (activityLogsLoading) {
+          <div class="text-center py-4">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            กำลังโหลดข้อมูล...
+          </div>
+          } @else if (activityLogs.length > 0) {
+          <!-- Search & Filter -->
+          <div class="d-flex gap-2 mb-3">
+            <div class="flex-grow-1">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text"><i class="fa fa-search"></i></span>
+                <input type="text" class="form-control" placeholder="ค้นหา ชื่อผู้ทำรายการ, รายละเอียด, เลขอ้างอิง..." [(ngModel)]="activityLogSearch" />
+                @if (activityLogSearch) {
+                <button class="btn btn-outline-secondary" type="button" (click)="activityLogSearch = ''"><i class="fa fa-times"></i></button>
+                }
+              </div>
+            </div>
+            <select class="form-select form-select-sm" style="max-width: 200px;" [(ngModel)]="activityLogTypeFilter">
+              <option value="">ทุกประเภท</option>
+              @for (type of activityLogActionTypes; track type.value) {
+              <option [value]="type.value">{{ type.label }}</option>
+              }
+            </select>
+          </div>
+
+          @if (filteredActivityLogs.length > 0) {
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <small class="text-muted">แสดง {{ filteredActivityLogs.length }} จาก {{ activityLogs.length }} รายการ</small>
+          </div>
+          <div class="activity-timeline" style="max-height: 500px; overflow-y: auto;">
+            @for (log of filteredActivityLogs; track log.id; let i = $index) {
+            <div class="activity-item">
+              <div class="activity-icon" [style.background]="log.color">
+                <i class="fa" [ngClass]="log.icon"></i>
+              </div>
+              <div class="activity-content">
+                <div class="activity-header">
+                  <div class="activity-meta">
+                    <span class="activity-label" [style.color]="log.color">{{ log.label }}</span>
+                    @if (log.ref_number) {
+                    <span class="activity-ref">{{ log.ref_number }}</span>
+                    }
+                  </div>
+                  <span class="activity-time">{{ log.created_at | dateThai:'datetime' }}</span>
+                </div>
+                @if (log.performed_by) {
+                <div class="activity-user">
+                  <i class="fa fa-user-o"></i> {{ log.performed_by }}
+                </div>
+                }
+                @if (log.action_detail) {
+                <div class="activity-detail">{{ log.action_detail }}</div>
+                }
+              </div>
+            </div>
+            }
+          </div>
+          } @else {
+          <p class="text-muted text-center py-3">ไม่พบรายการที่ตรงกับการค้นหา</p>
+          }
+          } @else {
+          <p class="text-muted text-center py-3">ยังไม่มีประวัติทำรายการ</p>
+          }
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+</div>
+}

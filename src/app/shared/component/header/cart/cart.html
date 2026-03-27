@@ -1,0 +1,101 @@
+<a (click)="carts()" (clickOutside)="clickOutside()">
+  <svg>
+    <use href="assets/svg/iconly-sprite.svg#cart-icon"></use>
+  </svg>
+</a>
+<span class="badge rounded-pill badge-primary">2</span>
+<div class="custom-menu cart-dropdown py-0 overflow-hidden" [class.show]="cart">
+  <h3 class="title dropdown-title">Cart</h3>
+  <ul class="pb-0">
+    <li>
+      <div class="d-flex">
+        <img class="img-fluid b-r-5 me-3 img-60" src="assets/images/dashboard-2/1.png" alt="" />
+        <div class="flex-grow-1">
+          <span class="f-w-600">Watch multicolor</span>
+          <div class="qty-box">
+            <div class="input-group">
+              <span class="input-group-prepend">
+                <button
+                  class="btn quantity-left-minus"
+                  type="button"
+                  data-type="minus"
+                  data-field=""
+                >
+                  -
+                </button>
+              </span>
+              <input class="form-control input-number" type="text" name="quantity" value="1" /><span
+                class="input-group-prepend"
+              >
+                <button
+                  class="btn quantity-right-plus"
+                  type="button"
+                  data-type="plus"
+                  data-field=""
+                >
+                  +
+                </button>
+              </span>
+            </div>
+          </div>
+          <h6 class="font-primary">$500</h6>
+        </div>
+        <div class="close-circle">
+          <a class="bg-danger" href="javascript:void(0)">
+            <app-feather-icon [icon]="'x'" />
+          </a>
+        </div>
+      </div>
+    </li>
+    <li>
+      <div class="d-flex">
+        <img class="img-fluid b-r-5 me-3 img-60" src="assets/images/dashboard-2/2.png" alt="" />
+        <div class="flex-grow-1">
+          <span class="f-w-600">Airpods</span>
+          <div class="qty-box">
+            <div class="input-group">
+              <span class="input-group-prepend">
+                <button
+                  class="btn quantity-left-minus"
+                  type="button"
+                  data-type="minus"
+                  data-field=""
+                >
+                  -
+                </button>
+              </span>
+              <input class="form-control input-number" type="text" name="quantity" value="1" />
+              <span class="input-group-prepend">
+                <button
+                  class="btn quantity-right-plus"
+                  type="button"
+                  data-type="plus"
+                  data-field=""
+                >
+                  +
+                </button>
+              </span>
+            </div>
+          </div>
+          <h6 class="font-primary">$500.00</h6>
+        </div>
+        <div class="close-circle">
+          <a class="bg-danger" href="javascript:void(0)">
+            <app-feather-icon [icon]="'x'" />
+          </a>
+        </div>
+      </div>
+    </li>
+    <li class="total">
+      <h6 class="mb-0">Order Total : <span class="f-w-600">$1000.00</span></h6>
+    </li>
+    <li class="text-center">
+      <a class="d-block mb-3 view-cart f-w-700 text-primary" [routerLink]="['/ecommerce/cart']"
+        >Go to your cart</a
+      >
+      <a class="btn btn-primary view-checkout text-white" [routerLink]="['/ecommerce/checkout']"
+        >Checkout</a
+      >
+    </li>
+  </ul>
+</div>

@@ -1,0 +1,35 @@
+// ==========================================
+// User Edit - Component Styles
+// Let Admiro handle card, form, btn styles
+// Only keep genuinely component-specific styles
+// ==========================================
+
+// Form switch styling
+.form-switch {
+  .form-check-input {
+    width: 3em;
+    height: 1.5em;
+    cursor: pointer;
+
+    &:checked {
+      background-color: var(--theme-default);
+      border-color: var(--theme-default);
+    }
+  }
+
+  .form-check-label {
+    font-weight: 500;
+    cursor: pointer;
+  }
+}
+
+// Loading state
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+// Multiselect override
+::ng-deep .custom-size .multiselect-dropdown .dropdown-btn .selected-item-container .selected-item {
+  max-width: 1200px !important;
+}

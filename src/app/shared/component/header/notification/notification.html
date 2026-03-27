@@ -1,0 +1,46 @@
+<a (click)="openNotifications()" (clickOutside)="clickOutside()">
+  <svg>
+    <use href="assets/svg/iconly-sprite.svg#notification"></use>
+  </svg>
+</a>
+@if (unreadCount > 0) {
+  <span class="badge rounded-pill badge-primary">{{ unreadCount }}</span>
+}
+<div class="notification-dropdown" [class.show]="isOpen">
+  <div class="notif-header">
+    <h3>การแจ้งเตือน</h3>
+    @if (unreadCount > 0) {
+      <span class="notif-unread-badge">{{ unreadCount }} ยังไม่อ่าน</span>
+    }
+  </div>
+  <div class="notif-divider"></div>
+  <ul class="notif-list">
+    @if (loading) {
+      <li class="text-center py-4">
+        <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+      </li>
+    } @else {
+      @for (log of logs; track log.id) {
+        <li class="notif-item" [class.unread]="!log.is_read" (click)="onNotificationClick(log)">
+          <div class="notif-icon" [style.background-color]="log.bgColor">
+            <i [class]="'fa ' + log.icon" [style.color]="log.color"></i>
+          </div>
+          <div class="notif-content">
+            <h6 class="notif-title">
+              {{ log.label }}
+              @if (log.ref_number) {
+                <span class="notif-ref">{{ log.ref_number }}</span>
+              }
+            </h6>
+            <p class="notif-desc">{{ log.action_detail || '-' }}</p>
+            <span class="notif-time">{{ log.timeAgo }}</span>
+          </div>
+        </li>
+      } @empty {
+        <li class="text-center py-4">
+          <p class="mb-0 text-muted">ไม่มีการแจ้งเตือน</p>
+        </li>
+      }
+    }
+  </ul>
+</div>

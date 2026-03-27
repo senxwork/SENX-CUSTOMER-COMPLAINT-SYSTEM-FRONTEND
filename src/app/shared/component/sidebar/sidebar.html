@@ -1,0 +1,85 @@
+<div class="left-arrow" id="left-arrow" [class.d-none]="leftArrowNone" (click)="scrollToLeft()">
+  <app-feather-icon [icon]="'arrow-left'" />
+</div>
+<div
+  class="main-sidebar"
+  id="main-sidebar"
+  [ngStyle]="{
+    marginLeft:
+      this.layout.config.settings.sidebar_type === 'horizontal-sidebar' ? margin + 'px' : '0px',
+  }"
+>
+  <ul class="sidebar-menu d-flex flex-column" id="simple-bar">
+    <li class="pin-title sidebar-main-title" [class.show]="pined">
+      <div>
+        <h5 class="sidebar-title f-w-700">Pinned</h5>
+      </div>
+    </li>
+    <ng-container *ngTemplateOutlet="recursiveMenu; context: { $implicit: menuItems }" />
+    <ng-template #recursiveMenu let-menuItems>
+      @for (item of menuItems; track item) {
+        <li
+          [ngClass]="{ 'sidebar-list': item.level === 1, 'sidebar-main-title': item.headTitle1 }"
+          [class.pined]="isPined(item.id)"
+        >
+          @if (item.level === 1) {
+            <i class="fa-solid fa-thumbtack" (click)="togglePined(item.id)"></i>
+          }
+          @if (item.headTitle1) {
+            <div>
+              <h5 class="lan-1 f-w-700 sidebar-title">{{ item.headTitle1 | translate }}</h5>
+            </div>
+          }
+          @if (item.type === 'extTabLink') {
+            <a href="{{ !item.type ? null : item.path }}">
+              {{ item.title | translate }}
+            </a>
+          } @else {
+            <a
+              [ngClass]="{
+                'sidebar-link': item.level === 1,
+                'submenu-title': item.level === 2,
+                actived: item.active && item.level === 1,
+              }"
+              [routerLink]="item.path"
+              (click)="toggleMenu(item)"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+            >
+              @if (item.icon && item.level === 1) {
+                <app-feather-icon [icon]="item.icon" />
+              }
+              @if (item.level === 1) {
+                <h6>{{ item.title | translate }}</h6>
+                @if (item.badge === true) {
+                  <span class="badge">3</span>
+                }
+              } @else {
+                {{ item.title | translate }}
+              }
+              @if (item.children) {
+                <i class="iconly-Arrow-Right-2 icli"></i>
+              }
+            </a>
+          }
+          @if (item.children) {
+            <ul
+              [ngClass]="{
+                'sidebar-submenu': item.level === 1,
+                'according-submenu': item.level === 2,
+              }"
+              [style.display]="item.active ? 'block' : 'none'"
+            >
+              <ng-container
+                *ngTemplateOutlet="recursiveMenu; context: { $implicit: item.children }"
+              />
+            </ul>
+          }
+        </li>
+      }
+    </ng-template>
+  </ul>
+</div>
+<div class="right-arrow" id="right-arrow" [class.d-none]="rightArrowNone" (click)="scrollToRight()">
+  <app-feather-icon [icon]="'arrow-right'" />
+</div>

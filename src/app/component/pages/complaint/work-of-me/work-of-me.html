@@ -1,0 +1,323 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-body">
+          <!-- Filter Section -->
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <div class="row">
+                <div class="col-md-2 custom-font-size">
+                  <div class="mb-3">
+                    <label class="form-label">โครงการ</label>
+                    <ng-multiselect-dropdown [placeholder]="'-- ทั้งหมด --'" [data]="availableProjects" [(ngModel)]="selectedProjects" [settings]="projectDropdownSettings" (onSelect)="onFilterChange()" (onDeSelect)="onFilterChange()"> </ng-multiselect-dropdown>
+                  </div>
+                </div>
+
+                <div class="col-md-2 custom-font-size">
+                  <div class="mb-3">
+                    <label class="form-label">ช่องทาง</label>
+                    <ng-multiselect-dropdown [placeholder]="'-- ทั้งหมด --'" [data]="availableContactChannels" [(ngModel)]="selectedContactChannels" [settings]="contactChannelDropdownSettings" (onSelect)="onFilterChange()" (onDeSelect)="onFilterChange()"> </ng-multiselect-dropdown>
+                  </div>
+                </div>
+
+                <div class="col-md-2 custom-font-size">
+                  <div class="mb-3">
+                    <label class="form-label">หน่วยงาน</label>
+                    <ng-multiselect-dropdown [placeholder]="'-- ทั้งหมด --'" [data]="availableDepartments" [(ngModel)]="selectedDepartments" [settings]="departmentDropdownSettings" (onSelect)="onFilterChange()" (onDeSelect)="onFilterChange()"> </ng-multiselect-dropdown>
+                  </div>
+                </div>
+
+                <div class="col-md-2 custom-font-size">
+                  <div class="mb-3">
+                    <label class="form-label">หมวดหมู่</label>
+                    <ng-multiselect-dropdown [placeholder]="'-- ทั้งหมด --'" [data]="availableTicketCategories" [(ngModel)]="selectedTicketCategories" [settings]="ticketCategoryDropdownSettings" (onSelect)="onFilterChange()" (onDeSelect)="onFilterChange()"> </ng-multiselect-dropdown>
+                  </div>
+                </div>
+
+                <div class="col-md-2 custom-font-size">
+                  <div class="mb-3">
+                    <label class="form-label">ประเภทเรื่อง</label>
+                    <ng-multiselect-dropdown [placeholder]="'-- ทั้งหมด --'" [data]="availableTicketSubCategories" [(ngModel)]="selectedTicketSubCategories" [settings]="ticketSubCategoryDropdownSettings" (onSelect)="onFilterChange()" (onDeSelect)="onFilterChange()"> </ng-multiselect-dropdown>
+                  </div>
+                </div>
+
+                <div class="col-md-1">
+                  <div class="mb-3">
+                    <label class="form-label">สถานะ</label>
+                    <select class="form-select" [(ngModel)]="statusFilter" (change)="onFilterChange()">
+                      <option value="">-- ทั้งหมด --</option>
+                      <option value="open">Open</option>
+                      <option value="inprogress">In Progress</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                </div>
+
+              </div>
+              <!-- Search Row -->
+              <div class="row mt-2">
+                <div class="col-md-4">
+                  <div class="input-group">
+                    <input type="text" class="form-control" [(ngModel)]="searchText" (input)="onSearch()" placeholder="ค้นหา เลขที่ Case, Ticket, ชื่อลูกค้า, เบอร์โทร, รายละเอียด...">
+                    <span class="input-group-text bg-primary text-white"><i class="fa fa-search"></i></span>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <select class="form-select" [(ngModel)]="slaFilter" (change)="onFilterChange()">
+                    <option value="">SLA: ทั้งหมด</option>
+                    <option value="overdue">เกินกำหนด</option>
+                    <option value="normal">อยู่ในกำหนด</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Results Count -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <p class="text-muted mb-0">แสดงผล {{ paginatedData.length }} รายการ จากทั้งหมด {{ totalItems }} รายการ</p>
+            </div>
+            <div class="col-md-6 text-end">
+              <div class="d-inline-flex align-items-center">
+                <label class="form-label mb-0 me-2 small">แสดงต่อหน้า:</label>
+                <select class="form-select form-select-sm" style="width: auto" [(ngModel)]="itemsPerPage" (change)="currentPage = 1">
+                  <option [value]="10">10</option>
+                  <option [value]="20">20</option>
+                  <option [value]="50">50</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="table-responsive">
+            <table class="table complaint-table">
+              <thead>
+                <tr>
+                  <th class="th-expand"></th>
+                  <th>เลขที่ Case</th>
+                  <th>ชื่อลูกค้า</th>
+                  <th>โครงการ</th>
+                  <th>เบอร์โทร</th>
+                  <th>ช่องทาง</th>
+                  <th>Ticket</th>
+                  <th>Owner</th>
+                  <th>ผู้สร้าง</th>
+                  <th>วันที่สร้าง</th>
+                  <th>สถานะ</th>
+                  <th class="text-center">จัดการ</th>
+                </tr>
+              </thead>
+              @if (loading) {
+              <tbody>
+                <tr>
+                  <td colspan="12" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">กำลังโหลด...</span>
+                    </div>
+                    <div class="mt-2">กำลังโหลดข้อมูล...</div>
+                  </td>
+                </tr>
+              </tbody>
+              } @else { @for (item of paginatedData; track item.complaint_id; let i = $index) {
+              <tbody class="complaint-group">
+                <!-- Main Row -->
+                <tr class="main-row" [class.row-expanded]="expandedId === item.complaint_id" [class.row-has-tickets]="item.subTasks?.length > 0" (click)="viewDetail(item.complaint_id)">
+                  <td class="td-expand" (click)="toggleExpand(item.complaint_id); $event.stopPropagation()">
+                    @if (item.subTasks?.length > 0) {
+                    <button class="expand-btn" [class.expanded]="expandedId === item.complaint_id">
+                      <i class="fa fa-chevron-right"></i>
+                    </button>
+                    }
+                  </td>
+                  <td>
+                    <span class="case-number-wrapper">
+                      @if (hasCaseUnread(item)) {
+                      <span class="case-noti-dot"></span>
+                      }
+                      <span class="case-number-link">{{ item.case_number || '-' }}</span>
+                    </span>
+                  </td>
+                  <td>{{ item.customer_name || '-' }}</td>
+                  <td>{{ item.project?.project_name_th || '-' }}</td>
+                  <td>{{ item.telephone || '-' }}</td>
+                  <td>{{ item.contactChannel?.channel_name || '-' }}</td>
+                  <td>
+                    @if (item.subTasks?.length > 0) {
+                    <div class="ticket-summary" (click)="toggleExpand(item.complaint_id); $event.stopPropagation()">
+                      <span class="ticket-progress-text">
+                        <span class="completed-count">{{ getTicketCompletedCount(item) }}</span>/<span class="total-count">{{ item.subTasks.length }}</span>
+                      </span>
+                      <div class="ticket-progress-bar">
+                        <div class="ticket-progress-fill" [style.width.%]="getTicketProgressPercent(item)"></div>
+                      </div>
+                    </div>
+                    } @else {
+                    <span class="text-muted">-</span>
+                    }
+                  </td>
+                  <td>
+                    <span class="owner-badge" [class.owner-badge--senx]="getCompanyLabel(item) === 'SENX'" [class.owner-badge--sena]="getCompanyLabel(item) === 'SENA'" [class.owner-badge--none]="getCompanyLabel(item) === 'ยังไม่ระบุเจ้าของงาน'">
+                      {{ getCompanyLabel(item) }}
+                    </span>
+                  </td>
+                  <td>{{ item.user_created?.first_name_last_name || '-' }}</td>
+                  <td>{{ item.created_at | dateThai:'short' }}</td>
+                  <td>
+                    <span [class]="getStatusBadgeClass(item.status)"> {{ getStatusText(item.status) }} </span>
+                  </td>
+                  <td class="text-center">
+                    <div class="btn-group" role="group">
+                      <button type="button" class="btn btn-sm btn-outline-primary" (click)="viewDetail(item.complaint_id)" title="ดูรายละเอียด">
+                        <i class="fa fa-eye"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Detail Row -->
+                <tr class="detail-row" (click)="viewDetail(item.complaint_id)">
+                  <td></td>
+                  <td colspan="11">
+                    <div class="detail-meta">
+                      <span class="detail-meta-item">
+                        <i class="fa fa-home"></i>
+                        <span class="detail-meta-label">บ้านเลขที่</span>
+                        <span class="detail-meta-value">{{ item.house_name || '-' }}</span>
+                      </span>
+                      <span class="detail-meta-sep"></span>
+                      <span class="detail-meta-item">
+                        <i class="fa fa-phone"></i>
+                        <span class="detail-meta-label">เบอร์โทร</span>
+                        <span class="detail-meta-value">{{ item.telephone || '-' }}</span>
+                      </span>
+                      <span class="detail-meta-sep"></span>
+                      <span class="detail-meta-item">
+                        <i class="fa fa-envelope-o"></i>
+                        <span class="detail-meta-label">อีเมล</span>
+                        <span class="detail-meta-value">{{ item.email || '-' }}</span>
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Expanded Ticket Row -->
+                @if (expandedId === item.complaint_id && item.subTasks?.length > 0) {
+                <tr class="expand-row">
+                  <td colspan="12" class="expand-cell">
+                    <div class="ticket-expand-container">
+                      <div class="ticket-expand-header">
+                        <i class="fa fa-ticket"></i>
+                        <span>Ticket ทั้งหมด {{ item.subTasks.length }} รายการ</span>
+                      </div>
+                      <div class="ticket-cards-grid">
+                        @for (ticket of item.subTasks; track ticket.id; let ti = $index) {
+                        <div class="ticket-card" [class]="'ticket-card--' + ticket.status" (click)="openTicketModal(ticket, item.status); $event.stopPropagation()">
+                          <div class="ticket-card-accent"></div>
+                          <div class="ticket-card-body">
+                            <div class="ticket-card-top">
+                              <span class="tc-number-wrapper">
+                                @if (ticketUnreadMap[ticket.id]) {
+                                <span class="tc-noti-dot"></span>
+                                }
+                                <span class="tc-number">{{ ticket.ticket_number || '#' + (ti + 1) }}</span>
+                              </span>
+                              <span class="tc-status" [class]="'tc-status--' + ticket.status">
+                                <span class="tc-dot"></span>
+                                {{ getStatusText(ticket.status) }}
+                              </span>
+                              @if (ticket.ticketCategory) {
+                              <span class="tc-category">
+                                <i class="fa fa-folder-o"></i> {{ ticket.ticketCategory.category_name }}
+                              </span>
+                              }
+                              @if (ticket.ticketSubCategory) {
+                              <span class="tc-sub-category">
+                                <i class="fa fa-file-text-o"></i> {{ ticket.ticketSubCategory.sub_category_name }}
+                              </span>
+                              }
+                              @if (ticket.urgent) {
+                              <span class="tc-urgent"><i class="fa fa-bolt"></i> ด่วน</span>
+                              }
+                              @if (ticket.is_processed === true) {
+                              <span class="tc-processed"><i class="fa fa-check-circle"></i> ดำเนินการ</span>
+                              } @else if (ticket.is_processed === false) {
+                              <span class="tc-not-processed"><i class="fa fa-times-circle"></i> ไม่ดำเนินการ</span>
+                              } @else {
+                              <span class="tc-unspecified"><i class="fa fa-question-circle"></i> ยังไม่ได้ระบุ</span>
+                              }
+                            </div>
+                            @if (ticket.ticket_detail) {
+                            <div class="tc-desc">{{ ticket.ticket_detail }}</div>
+                            }
+                            <div class="tc-footer">
+                              @if (ticket.department) {
+                              <span class="tc-dept"><i class="fa fa-building-o"></i> {{ ticket.department.department_name }}</span>
+                              } @else {
+                              <span class="tc-dept tc-dept--warning"><i class="fa fa-exclamation-circle"></i> ยังไม่ได้มอบหมาย</span>
+                              }
+                              <span class="tc-footer-divider"></span>
+                              <span class="tc-aging" [class.tc-aging--overdue]="isAgingOverdue(ticket.created_at, ticket.status)" [class.tc-aging--done]="ticket.status === 'completed' || ticket.status === 'cancelled'">
+                                <i class="fa" [class.fa-clock-o]="!isAgingOverdue(ticket.created_at, ticket.status)" [class.fa-exclamation-triangle]="isAgingOverdue(ticket.created_at, ticket.status)"></i>
+                                @if (ticket.status === 'completed' || ticket.status === 'cancelled') {
+                                ระยะเวลา: {{ getAgingDays(ticket.created_at, ticket.completed_at || ticket.updated_at) }} วัน
+                                } @else if (isAgingOverdue(ticket.created_at, ticket.status)) {
+                                ระยะเวลา: เกินกำหนด {{ getAgingDays(ticket.created_at) }} วัน
+                                } @else {
+                                ระยะเวลา: {{ getAgingDays(ticket.created_at) }} วัน
+                                }
+                              </span>
+                              <span class="tc-footer-divider"></span>
+                              <span class="tc-due-date" [class.tc-due-date--overdue]="isAgingOverdue(ticket.created_at, ticket.status)">
+                                <i class="fa fa-calendar-times-o"></i>
+                                ครบกำหนด: {{ getDueDate(ticket) | dateThai:'short' }}
+                              </span>
+                              @if (ticket.status === 'completed' || ticket.status === 'cancelled') {
+                              <span class="tc-footer-divider"></span>
+                              <span class="tc-closed-date">
+                                <i class="fa fa-calendar-check-o"></i>
+                                ปิดเมื่อ: {{ (ticket.completed_at || ticket.updated_at) | dateThai:'short' }}
+                              </span>
+                              }
+                            </div>
+                          </div>
+                        </div>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                }
+              </tbody>
+              } @empty {
+              <tbody>
+                <tr>
+                  <td colspan="12" class="text-center py-4">
+                    <i class="fa fa-inbox fa-3x text-muted mb-3 d-block"></i>
+                    <div class="h5 text-muted">ไม่มีงานที่คุณสร้าง</div>
+                    <div class="text-muted">ลองค้นหาด้วยเงื่อนไขอื่น</div>
+                  </td>
+                </tr>
+              </tbody>
+              } }
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          @if (totalItems > itemsPerPage) {
+          <div class="row mt-3">
+            <div class="col-md-12">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted small">แสดง {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ getMin(currentPage * itemsPerPage, totalItems) }} จาก {{ totalItems }} รายการ</div>
+                <ngb-pagination [(page)]="currentPage" [pageSize]="itemsPerPage" [collectionSize]="totalItems" [maxSize]="5" [rotate]="true" [boundaryLinks]="true" size="sm"> </ngb-pagination>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

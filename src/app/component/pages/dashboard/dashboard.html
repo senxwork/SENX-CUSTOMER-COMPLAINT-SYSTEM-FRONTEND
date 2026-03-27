@@ -1,0 +1,344 @@
+<div class="container-fluid dashboard-container">
+  <!-- Header with Title -->
+  <div class="row mb-3">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Dashboard ข้อร้องเรียน</h4>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card filter-card">
+        <div class="card-body py-3">
+          <div class="d-flex flex-wrap align-items-center gap-3">
+            <span class="filter-label">Filter by</span>
+
+            <!-- Filter BU (Multi-select) -->
+            <div style="width: 350px">
+              <ng-multiselect-dropdown
+                [placeholder]="'BU (ทั้งหมด)'"
+                [settings]="buDropdownSettings"
+                [data]="businessUnits"
+                [(ngModel)]="selectedBUs"
+                (onSelect)="onBUSelect($event)"
+                (onDeSelect)="onBUDeselect($event)"
+                (onSelectAll)="onSelectAllBU($event)"
+                (onDeSelectAll)="onDeselectAllBU($event)">
+              </ng-multiselect-dropdown>
+            </div>
+
+            <!-- Filter Project (Multi-select) -->
+            <div style="width: 350px">
+              <ng-multiselect-dropdown
+                [placeholder]="'ชื่อโครงการ (ทั้งหมด)'"
+                [settings]="projectDropdownSettings"
+                [data]="filteredProjects"
+                [(ngModel)]="selectedProjects"
+                (onSelect)="onProjectSelect($event)"
+                (onDeSelect)="onProjectDeselect($event)"
+                (onSelectAll)="onSelectAllProject($event)"
+                (onDeSelectAll)="onDeselectAllProject($event)">
+              </ng-multiselect-dropdown>
+            </div>
+
+            <div class="d-flex align-items-center gap-3 ms-auto">
+              <div class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 small fw-bold">เดือน:</label>
+                <select class="form-select form-select-sm" style="width: 130px" [(ngModel)]="filterMonth" (change)="onFilterChange()">
+                  <option value="">ทุกเดือน</option>
+                  <option *ngFor="let m of monthOptions; let i = index" [value]="i">{{ m }}</option>
+                </select>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 small fw-bold">ปี:</label>
+                <select class="form-select form-select-sm" style="width: 100px" [(ngModel)]="filterYear" (change)="onFilterChange()">
+                  <option *ngFor="let y of availableYears" [value]="y">{{ y + 543 }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">กำลังโหลด...</span>
+      </div>
+      <p class="mt-2 text-muted">กำลังโหลดข้อมูล...</p>
+    </div>
+  } @else {
+    <!-- Statistics Cards Row -->
+    <div class="row mb-4">
+      <div class="col-sm-6 col-xl-3 col-lg-6 mb-3">
+        <div class="card stat-card border-0 h-100">
+          <div class="card-body bg-secondary text-white rounded">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon me-3">
+                <i class="fa fa-inbox fa-2x"></i>
+              </div>
+              <div>
+                <div class="stat-label">ทั้งหมด</div>
+                <div class="stat-value">{{ totalAll }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3 col-lg-6 mb-3">
+        <div class="card stat-card border-0 h-100">
+          <div class="card-body bg-primary text-white rounded">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon me-3">
+                <i class="fa fa-hourglass-half fa-2x"></i>
+              </div>
+              <div>
+                <div class="stat-label">Open</div>
+                <div class="stat-value">{{ totalOpen }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3 col-lg-6 mb-3">
+        <div class="card stat-card border-0 h-100">
+          <div class="card-body bg-warning text-white rounded">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon me-3">
+                <i class="fa fa-cogs fa-2x"></i>
+              </div>
+              <div>
+                <div class="stat-label">In Progress</div>
+                <div class="stat-value">{{ totalInProgress }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3 col-lg-6 mb-3">
+        <div class="card stat-card border-0 h-100">
+          <div class="card-body bg-success text-white rounded">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon me-3">
+                <i class="fa fa-check-circle fa-2x"></i>
+              </div>
+              <div>
+                <div class="stat-label">Completed</div>
+                <div class="stat-value">{{ totalCompleted }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row mb-4">
+      <!-- Monthly Bar Chart -->
+      <div class="col-xl-5 col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-primary text-white">
+            <h6 class="mb-0 chart-title">
+              <i class="fa fa-bar-chart me-2"></i>
+              <span>จำนวนเรื่องร้องเรียน Sen X PM (3 เดือนย้อนหลัง)</span>
+            </h6>
+          </div>
+          <div class="card-body">
+            @if (monthlyChartOptions) {
+              <apx-chart
+                [series]="monthlyChartOptions.series"
+                [chart]="monthlyChartOptions.chart"
+                [plotOptions]="monthlyChartOptions.plotOptions"
+                [dataLabels]="monthlyChartOptions.dataLabels"
+                [xaxis]="monthlyChartOptions.xaxis"
+                [yaxis]="monthlyChartOptions.yaxis"
+                [colors]="monthlyChartOptions.colors"
+                [legend]="monthlyChartOptions.legend"
+                [fill]="monthlyChartOptions.fill">
+              </apx-chart>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Top 5 Projects -->
+      <div class="col-xl-4 col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-danger text-white">
+            <h6 class="mb-0">
+              <i class="fa fa-building me-2"></i>
+              โครงการที่มีการร้องเรียนสูงสุด 10 อันดับแรก
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="project-list">
+              @for (project of topProjects; track project.name; let i = $index) {
+                <div class="project-item d-flex justify-content-between align-items-center py-2 border-bottom">
+                  <div class="d-flex align-items-center">
+                    <span class="bullet me-2" [style.background-color]="getBulletColor(i)"></span>
+                    <span class="project-name">{{ project.name }}</span>
+                  </div>
+                  <span class="badge bg-danger">{{ project.count }}</span>
+                </div>
+              } @empty {
+                <div class="text-center text-muted py-4">ไม่มีข้อมูล</div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Complaint Types Pie Chart -->
+      <div class="col-xl-3 col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-info text-white">
+            <h6 class="mb-0">
+              <i class="fa fa-pie-chart me-2"></i>
+              สัดส่วนตามประเภทการร้องเรียน
+            </h6>
+          </div>
+          <div class="card-body p-2">
+            @if (typeChartOptions && typeChartOptions.series?.length > 0) {
+              <div class="type-chart-container">
+                <apx-chart
+                  [series]="typeChartOptions.series"
+                  [chart]="typeChartOptions.chart"
+                  [labels]="typeChartOptions.labels"
+                  [colors]="typeChartOptions.colors"
+                  [legend]="typeChartOptions.legend"
+                  [dataLabels]="typeChartOptions.dataLabels"
+                  [plotOptions]="typeChartOptions.plotOptions"
+                  [stroke]="typeChartOptions.stroke"
+                  [tooltip]="typeChartOptions.tooltip"
+                  [responsive]="typeChartOptions.responsive">
+                </apx-chart>
+
+                <!-- Custom Legend -->
+                <div class="custom-legend mt-2">
+                  @for (item of typeChartData; track item.name; let i = $index) {
+                    <div class="legend-item" [title]="item.name">
+                      <span class="legend-color" [style.background-color]="item.color"></span>
+                      <span class="legend-text">{{ item.name | slice:0:20 }}{{ item.name.length > 20 ? '...' : '' }}</span>
+                      <span class="legend-count">({{ item.count }})</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            } @else {
+              <div class="text-center text-muted py-4">ไม่มีข้อมูล</div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row mb-4">
+      <!-- Speed Donut Chart -->
+      <div class="col-xl-4 col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-success text-white">
+            <h6 class="mb-0">
+              <i class="fa fa-clock-o me-2"></i>
+              ความเร็วในการปิดเคส
+            </h6>
+          </div>
+          <div class="card-body">
+            @if (speedChartOptions) {
+              <apx-chart
+                [series]="speedChartOptions.series"
+                [chart]="speedChartOptions.chart"
+                [labels]="speedChartOptions.labels"
+                [colors]="speedChartOptions.colors"
+                [legend]="speedChartOptions.legend"
+                [plotOptions]="speedChartOptions.plotOptions"
+                [dataLabels]="speedChartOptions.dataLabels"
+                [responsive]="speedChartOptions.responsive">
+              </apx-chart>
+            }
+            <div class="speed-legend mt-3">
+              <div class="d-flex align-items-center mb-2">
+                <span class="legend-dot bg-success me-2"></span>
+                <small>Fast (ภายใน 24 ชั่วโมง)</small>
+              </div>
+              <div class="d-flex align-items-center mb-2">
+                <span class="legend-dot bg-warning me-2"></span>
+                <small>On-Time (2-3 วัน)</small>
+              </div>
+              <div class="d-flex align-items-center">
+                <span class="legend-dot bg-danger me-2"></span>
+                <small>Slow (มากกว่า 3 วัน)</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Problem Categories -->
+      <div class="col-xl-4 col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header bg-warning text-dark">
+            <h6 class="mb-0">
+              <i class="fa fa-exclamation-triangle me-2"></i>
+              ปัญหาที่เกี่ยวข้องกับ Product / โครงสร้าง
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="category-list">
+              @for (cat of problemCategories; track cat.name; let i = $index) {
+                @if (i < 6) {
+                  <div class="category-item d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <div class="d-flex align-items-center">
+                      <span class="category-bullet me-2">•</span>
+                      <span>{{ cat.name }}</span>
+                    </div>
+                    <span class="badge bg-secondary">{{ cat.count }}</span>
+                  </div>
+                }
+              } @empty {
+                <div class="text-center text-muted py-4">ไม่มีข้อมูล</div>
+              }
+            </div>
+            <div class="text-muted small mt-3">
+              <i class="fa fa-info-circle me-1"></i>
+              คลิกที่ประเภท จะแสดงรายชื่อโครงการในประเภทนั้นๆ
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Insights for Developer -->
+      <div class="col-xl-4 col-lg-12 mb-4">
+        <div class="card h-100 insight-card">
+          <div class="card-header bg-dark text-white">
+            <h6 class="mb-0">
+              <i class="fa fa-lightbulb-o me-2"></i>
+              Insight สำหรับ Developer
+            </h6>
+          </div>
+          <div class="card-body">
+            <ul class="insight-list">
+              @for (insight of insights; track insight) {
+                <li class="mb-3">
+                  <i class="fa fa-check-circle text-success me-2"></i>
+                  {{ insight }}
+                </li>
+              } @empty {
+                <li class="text-muted">ไม่มีข้อมูลเชิงลึก</li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  }
+</div>

@@ -1,0 +1,498 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      
+
+      <div *ngIf="user" class="card user-profile o-hidden">
+  <div class="bg-primary-gradient">
+    <div class="user-info mt-4">
+      <div class="profile-image-container"> 
+        <img
+          *ngIf="user.profile_image"
+          class="profile-picture mb-2"
+          [src]="endpointProfileImage + user.profile_image"
+          width="150px"
+          height="150px"
+        />
+        <img
+          *ngIf="!user.profile_image"
+          src="./assets/images/users/1.png"
+          width="150px"
+          height="150px"
+          class="profile-picture mb-2"
+        />
+        <button
+          (click)="openModalUploadImage(modalUploadProfile)"
+          class="btn btn-upload-profile"
+          title="อัพโหลดรูปโปรไฟล์"
+        >
+          <i class="fa-solid fa-upload "></i>
+        </button>
+      </div>
+      <h3 class="m-0 text-white text-24 mt-3">
+        {{ user.first_name_last_name }}
+      </h3>
+      <p class="text-white text-14 mb-0 opacity-75" *ngIf="user.username">@{{ user.username }}</p>
+      <p class="text-white text-16 mb-0 opacity-90">{{ user.title }}</p>
+    </div>
+  </div>
+
+  <div class="card-body nav-center">
+    <div class="row align-items-center mb-3">
+      <div class="col-md-4 col-12 mb-2 mb-md-0">
+        <h4 class="mb-0">
+          <i class="i-Business-Man text-primary me-2"></i>ข้อมูลส่วนตัว
+        </h4>
+      </div>
+      <div class="col-md-8 col-12 text-end">
+        <div class="btn-group-custom justify-content-end">
+          <button
+            (click)="editDataUser()"
+            type="button"
+            [ngClass]="{
+              'btn-primary': showEdit === true,
+              'btn-outline-primary': showEdit === false
+            }"
+            class="btn btn-sm me-2"
+          >
+            <i class="i-Pen-2 me-1"></i>แก้ไขข้อมูลส่วนตัว
+          </button>
+          <button
+            (click)="editDataPassword()"
+            type="button"
+            [ngClass]="{
+              'btn-warning': showEditPassword === true,
+              'btn-outline-warning': showEditPassword === false
+            }"
+            class="btn btn-sm"
+          >
+            <i class="i-Lock-2 me-1"></i>ตั้งค่ารหัสผ่าน
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <hr />
+    <div
+      *ngIf="showEditPassword === false"
+      [hidden]="showEdit === true"
+      class="row"
+    >
+      <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-card mb-4">
+          <label class="info-label">
+            <i class="i-MaleFemale me-2"></i>Username
+          </label>
+          <div class="info-value">{{ user.username || '-' }}</div>
+        </div>
+        <div class="info-card mb-4">
+          <label class="info-label">
+            <i class="i-Face-Style-4 me-2"></i>ชื่อ-นามสกุล
+          </label>
+          <div class="info-value">{{ user.first_name_last_name || '-' }}</div>
+        </div>
+        <div class="info-card mb-4">
+          <label class="info-label">
+            <i class="i-Professor me-2"></i>ชื่อเล่น
+          </label>
+          <div class="info-value">{{ user.nickname || '-' }}</div>
+        </div>
+        <div class="info-card mb-4">
+          <label class="info-label">
+            <i class="i-Email me-2"></i>อีเมล์ส่วนตัว
+          </label>
+          <div class="info-value">{{ user.email }}</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-card mb-4">
+          <label class="info-label">
+            <i class="i-Suitcase me-2"></i>ตำแหน่งงาน
+          </label>
+          <div class="info-value">{{ user.title }}</div>
+        </div>
+        <div class="info-card mb-4">
+          <label class="info-label">
+            <i class="i-Telephone me-2"></i>เบอร์โทร
+          </label>
+          <div class="info-value">{{ user.mobile }}</div>
+        </div>
+      </div>
+     
+     
+    </div>
+    <form
+      [hidden]="showEdit === false"
+      [formGroup]="infoForm"
+      (submit)="openModalConfirm(modalConfirm)"
+    >
+      <div class="row">
+        <div class="col-md-4 col-12">
+          <div class="mb-3">
+            <label class="form-label">
+              <i class="i-MaleFemale me-1"></i>Username
+            </label>
+            <input
+              class="form-control"
+              [value]="user.username || ''"
+              readonly
+              disabled
+              style="background-color: #e9ecef; cursor: not-allowed;"
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">
+              <i class="i-Face-Style-4 me-1"></i>ชื่อ-นามสกุล
+            </label>
+            <input
+              formControlName="first_name_last_name"
+              [(ngModel)]="user.first_name_last_name"
+              class="form-control"
+              name="first_name_last_name"
+              placeholder="กรุณากรอกชื่อ-นามสกุล"
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">
+              <i class="i-Professor me-1"></i>ชื่อเล่น
+            </label>
+            <input
+              formControlName="nickname"
+              [(ngModel)]="user.nickname"
+              class="form-control"
+              name="nickname"
+              placeholder="กรุณากรอกชื่อเล่น"
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">
+              <i class="i-Email me-1"></i>อีเมล์ส่วนตัว
+            </label>
+            <input
+              formControlName="email"
+              [(ngModel)]="user.email"
+              class="form-control"
+              name="email"
+              type="email"
+              placeholder="example@email.com"
+            />
+          </div>
+        </div>
+        <div class="col-md-4 col-12">
+          <div class="mb-3">
+            <label class="form-label">
+              <i class="i-Suitcase me-1"></i>ตำแหน่งงาน
+            </label>
+            <input
+              formControlName="title"
+              [(ngModel)]="user.title"
+              class="form-control"
+              name="title"
+              placeholder="กรุณากรอกตำแหน่งงาน"
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">
+              <i class="i-Telephone me-1"></i>เบอร์โทร
+            </label>
+            <input
+              formControlName="mobile"
+              [(ngModel)]="user.mobile"
+              class="form-control"
+              name="mobile"
+              placeholder="0XX-XXX-XXXX"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="form-group row mt-4">
+        <div class="col-sm-12 text-end">
+          <button
+            type="submit"
+            class="btn btn-primary"
+          >
+            <i class="i-Yes me-1"></i>บันทึกข้อมูลส่วนตัว
+          </button>
+        </div>
+      </div>
+    </form>
+    <hr />
+
+    <div [hidden]="showEditPassword === false" class="password-section">
+      <h4 class="mb-4">
+        <i class="i-Lock-2 text-warning me-2"></i>ตั้งค่ารหัสผ่าน
+      </h4>
+
+      <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8 col-12">
+          <form [formGroup]="passwordForm" (submit)="passwordSubmit()">
+            <div class="mb-3">
+              <label for="password" class="form-label">
+                <i class="i-Key me-1"></i>รหัสผ่านใหม่
+              </label>
+              <input
+                formControlName="password"
+                [type]="password"
+                class="form-control"
+                id="password"
+                name="password"
+                placeholder="กรุณากรอกรหัสผ่านใหม่"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="password_confirm" class="form-label">
+                <i class="i-Key me-1"></i>ยืนยันรหัสผ่านใหม่
+              </label>
+              <input
+                formControlName="password_confirm"
+                [type]="password"
+                class="form-control"
+                id="password_confirm"
+                name="password_confirm"
+                placeholder="กรุณายืนยันรหัสผ่านใหม่"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label class="checkbox checkbox-outline-primary">
+                <input type="checkbox" (change)="onCheckboxChange($event)" />
+                <span class="checkmark"></span>
+                <span>แสดงรหัสผ่าน</span>
+              </label>
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-warning">
+                <i class="i-Lock-User me-1"></i>บันทึกเปลี่ยนรหัสผ่าน
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<ng-template #modalConfirm let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-title">บันทึกข้อมูลส่วนตัว</h4>
+    <button
+      type="button"
+      class="close"
+      aria-label="Close button"
+      aria-describedby="modal-title"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>
+      <strong
+        >คุณแน่ใจที่จะบันทึกข้อมูลส่วนตัว
+        <span class="text-primary"
+          >{{ user.first_name_last_name }}</span
+        >
+        ?</strong
+      >
+    </p>
+    <p>
+      คลิก บันทึก เพื่อบันทึกการเปลี่ยนแปลง.
+      <span class="text-danger">คลิก ยกเลิก เพื่อกลับไปเปลี่ยนแปลงข้อมูล.</span>
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-outline-secondary btn-rounded"
+      (click)="modal.dismiss('cancel')"
+    >
+      ยกเลิก
+    </button>
+    <button
+      type="button"
+      ngbAutofocus
+      class="btn btn-danger btn-rounded"
+      (click)="modal.close('Ok')"
+    >
+      บันทึก
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #modalUploadProfile let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-title">
+      <i class="i-Upload me-2"></i>อัพโหลดรูปโปรไฟล์
+    </h4>
+    <button
+      type="button"
+      class="close"
+      aria-label="Close button"
+      aria-describedby="modal-title"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="upload-section">
+      <label class="form-label">
+        อัพโหลดไฟล์รูปภาพ<span class="text-danger ms-1">*</span>
+      </label>
+      <div class="upload-area" appDnd (change)="onSelectFile($event)">
+        <div class="upload-content">
+          <i class="i-Cloud-Upload text-primary" style="font-size: 3rem;"></i>
+          <p class="mt-2 mb-1">คลิกเพื่อเลือกไฟล์หรือลากไฟล์มาวางที่นี่</p>
+          <small class="text-muted">รองรับไฟล์: JPG, JPEG, PNG</small>
+        </div>
+        <input
+          #fileDropRef
+          id="fileDropRef"
+          accept="image/*"
+          class="form-control"
+          type="file"
+        />
+      </div>
+
+      <div *ngIf="url" class="preview-section mt-4 text-center">
+        <p class="mb-2"><strong>ตัวอย่างรูปภาพ</strong></p>
+        <img [src]="url" class="preview-image" alt="Preview" />
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-outline-secondary btn-rounded"
+      (click)="modal.dismiss('cancel')"
+    >
+      <i class="i-Close me-1"></i>ยกเลิก
+    </button>
+    <button
+      type="button"
+      (click)="uploadImageProfile()"
+      class="btn btn-success btn-rounded"
+    >
+      <i class="i-Yes me-1"></i>บันทึกข้อมูล
+    </button>
+  </div>
+</ng-template>
+<ng-template #modalUploadSignatureImage let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-title">
+      <i class="i-Pen-4 me-2"></i>อัพโหลดลายเซ็น
+    </h4>
+    <button
+      type="button"
+      class="close"
+      aria-label="Close button"
+      aria-describedby="modal-title"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="upload-section">
+      <label class="form-label">
+        อัพโหลดไฟล์ลายเซ็น<span class="text-danger ms-1">*</span>
+      </label>
+      <div class="alert alert-info mb-3">
+        <i class="i-Information me-2"></i>
+        <small>รองรับเฉพาะไฟล์ PNG เท่านั้น เพื่อความชัดเจนของลายเซ็น</small>
+      </div>
+      <div class="upload-area" appDnd (change)="onSelectFile($event)">
+        <div class="upload-content">
+          <i class="i-File-Edit text-success" style="font-size: 3rem;"></i>
+          <p class="mt-2 mb-1">คลิกเพื่อเลือกไฟล์หรือลากไฟล์มาวางที่นี่</p>
+          <small class="text-muted">รองรับไฟล์: PNG</small>
+        </div>
+        <input
+          #fileDropRef
+          id="fileDropRef"
+          accept="image/png"
+          class="form-control"
+          type="file"
+        />
+      </div>
+
+      <div *ngIf="url" class="preview-section mt-4 text-center">
+        <p class="mb-2"><strong>ตัวอย่างลายเซ็น</strong></p>
+        <img [src]="url" class="preview-image" alt="Signature Preview" />
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-outline-secondary btn-rounded"
+      (click)="modal.dismiss('cancel')"
+    >
+      <i class="i-Close me-1"></i>ยกเลิก
+    </button>
+    <button
+      type="button"
+      (click)="uploadSignatureImage()"
+      class="btn btn-success btn-rounded"
+    >
+      <i class="i-Yes me-1"></i>บันทึกข้อมูล
+    </button>
+  </div>
+</ng-template>
+
+<!-- Modal for Disconnect LINE -->
+<ng-template #modalDisconnectLine let-modal>
+  <div class="modal-header bg-danger text-white">
+    <h4 class="modal-title" id="modal-title">
+      <i class="i-Close me-2"></i>ยกเลิกการเชื่อมต่อ LINE
+    </h4>
+    <button
+      type="button"
+      class="btn-close btn-close-white"
+      aria-label="Close button"
+      aria-describedby="modal-title"
+      (click)="modal.dismiss('Cross click')"
+    >
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="text-center mb-3">
+      <i class="i-Close text-danger" style="font-size: 4rem;"></i>
+    </div>
+    <p class="text-center">
+      <strong>คุณแน่ใจหรือไม่ที่จะยกเลิกการเชื่อมต่อกับ LINE?</strong>
+    </p>
+    <p class="text-muted text-center">
+      หากคุณยกเลิกการเชื่อมต่อ คุณจะไม่ได้รับการแจ้งเตือนผ่าน LINE อีกต่อไป<br>
+      <strong class="text-danger">LINE ID: {{ user.line_user_id }}</strong>
+    </p>
+    <div class="alert alert-warning">
+      <i class="i-Information me-2"></i>
+      <small>หากต้องการเชื่อมต่อใหม่ คุณจะต้องสแกน QR Code อีกครั้ง</small>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-outline-secondary btn-rounded"
+      (click)="modal.dismiss('cancel')"
+    >
+      <i class="i-Arrow-Back me-1"></i>ยกเลิก
+    </button>
+    <button
+      type="button"
+      ngbAutofocus
+      class="btn btn-danger btn-rounded"
+      (click)="modal.close('Ok')"
+    >
+      <i class="i-Yes me-1"></i>ยืนยันยกเลิกการเชื่อมต่อ
+    </button>
+  </div>
+</ng-template>

@@ -1,0 +1,149 @@
+<div class="container-fluid">
+  <!-- Parent Banner -->
+  @if (parentData) {
+    <div class="alert alert-info d-flex align-items-center mb-3">
+      <i class="fa fa-level-up me-2"></i>
+      <span>กำลังสร้างงานย่อยของ:
+        <a [routerLink]="['/pages/complaint/view', parentData.complaint_id]" class="fw-bold">
+          {{ parentData.job_detail }}
+        </a>
+      </span>
+    </div>
+  }
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5>{{ parentId ? 'สร้างงานย่อย' : 'กรอกข้อมูลเรื่องร้องเรียน' }}</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+            <div class="row">
+              <!-- Row 1 -->
+              <div class="col-md-3 mb-3 custom-font-size">
+                <label class="form-label">เลือกโครงการ/สถานที่ <span class="text-danger">*</span></label>
+                <ng-multiselect-dropdown
+                  [placeholder]="'กรุณาเลือก โครงการ/สังกัด'"
+                  [settings]="projectDropdownSettings"
+                  [data]="projects"
+                  [(ngModel)]="selectedProject"
+                  [ngModelOptions]="{standalone: true}"
+                  (onSelect)="onProjectSelect($event)"
+                  (onDeSelect)="onProjectDeselect()">
+                </ng-multiselect-dropdown>
+                @if (createForm.get('project_id')?.hasError('required') && createForm.get('project_id')?.touched) {
+                  <div class="text-danger small mt-1">กรุณาเลือกโครงการ/สถานที่</div>
+                }
+              </div>
+
+              <div class="col-md-3 mb-3 custom-font-size">
+                <label class="form-label">ช่องทางการติดต่อ <span class="text-danger">*</span></label>
+                <ng-multiselect-dropdown
+                  [placeholder]="'กรุณาเลือก ช่องทางการติดต่อ'"
+                  [settings]="channelDropdownSettings"
+                  [data]="contactChannels"
+                  [(ngModel)]="selectedChannel"
+                  [ngModelOptions]="{standalone: true}"
+                  (onSelect)="onChannelSelect($event)"
+                  (onDeSelect)="onChannelDeselect()">
+                </ng-multiselect-dropdown>
+                @if (createForm.get('contact_channel_id')?.hasError('required') && createForm.get('contact_channel_id')?.touched) {
+                  <div class="text-danger small mt-1">กรุณาเลือกช่องทางการติดต่อ</div>
+                }
+              </div>
+
+              <div class="col-md-3 mb-3">
+                <label class="form-label">ชื่อ-สกุล ลูกค้า <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="customer_name"
+                  [class.is-invalid]="createForm.get('customer_name')?.invalid && createForm.get('customer_name')?.touched">
+                @if (createForm.get('customer_name')?.hasError('required') && createForm.get('customer_name')?.touched) {
+                  <div class="invalid-feedback">กรุณากรอกชื่อ-สกุล ลูกค้า</div>
+                }
+              </div>
+
+              <!-- Row 2: 4 fields -->
+              <div class="col-md-3 mb-3">
+                <label class="form-label">บ้านเลขที่ <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="house_name"
+                  [class.is-invalid]="createForm.get('house_name')?.invalid && createForm.get('house_name')?.touched">
+                @if (createForm.get('house_name')?.hasError('required') && createForm.get('house_name')?.touched) {
+                  <div class="invalid-feedback">กรุณากรอกบ้านเลขที่</div>
+                }
+              </div>
+
+              <div class="col-md-3 mb-3">
+                <label class="form-label">เบอร์ติดต่อลูกค้า <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="telephone"
+                  [class.is-invalid]="createForm.get('telephone')?.invalid && createForm.get('telephone')?.touched">
+                @if (createForm.get('telephone')?.hasError('required') && createForm.get('telephone')?.touched) {
+                  <div class="invalid-feedback">กรุณากรอกเบอร์ติดต่อลูกค้า</div>
+                }
+              </div>
+
+              <div class="col-md-3 mb-3">
+                <label class="form-label">อีเมล์ลูกค้า <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" formControlName="email"
+                  [class.is-invalid]="createForm.get('email')?.invalid && createForm.get('email')?.touched">
+                @if (createForm.get('email')?.hasError('required') && createForm.get('email')?.touched) {
+                  <div class="invalid-feedback">กรุณากรอกอีเมล์ลูกค้า</div>
+                }
+                @if (createForm.get('email')?.hasError('email') && !createForm.get('email')?.hasError('required') && createForm.get('email')?.touched) {
+                  <div class="invalid-feedback">รูปแบบอีเมล์ไม่ถูกต้อง</div>
+                }
+              </div>
+            </div>
+
+            <div class="row">
+              <!-- Detail and File Upload side by side -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">รายละเอียดการร้องเรียน / เสนอแนะ <span class="text-danger">*</span></label>
+                <textarea class="form-control" formControlName="job_detail" rows="5"
+                  [class.is-invalid]="createForm.get('job_detail')?.invalid && createForm.get('job_detail')?.touched"></textarea>
+                @if (createForm.get('job_detail')?.hasError('required') && createForm.get('job_detail')?.touched) {
+                  <div class="invalid-feedback">กรุณากรอกรายละเอียด</div>
+                }
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">ไฟล์เอกสารประกอบ <span class="text-danger">** ไฟล์มีขนาดใหญ่ไม่เกิน 15 MB และ ได้ 3 ไฟล์ เท่านั้น</span></label>
+                <div class="mt-2">
+                  <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                    <i class="fa fa-plus me-2"></i>Browse Files
+                  </button>
+                  <input type="file" id="fileInput" class="d-none" (change)="onFileSelect($event)" multiple accept="image/*,.pdf">
+                </div>
+                @if (selectedFiles.length > 0) {
+                  <div class="mt-3">
+                    @for (file of selectedFiles; track file.name; let i = $index) {
+                      <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-light text-dark me-2">{{ file.name }}</span>
+                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeFile(i)">
+                          <i class="fa fa-times"></i>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Hidden fields -->
+            <input type="hidden" formControlName="job_departments_id">
+            <input type="hidden" formControlName="job_catagory_id">
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <button type="button" class="btn btn-secondary" (click)="cancel()">ยกเลิก</button>
+              <button type="submit" class="btn btn-primary" [disabled]="loading">
+                @if (loading) {
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                }
+                บันทึก
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

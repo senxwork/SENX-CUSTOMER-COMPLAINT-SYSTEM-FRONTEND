@@ -1,0 +1,183 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">เพิ่มผู้ใช้งาน</h5>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="onSubmit()">
+            <!-- ข้อมูลส่วนตัว -->
+            <div class="row mb-4">
+              <div class="col-md-12">
+                <h6 class="border-bottom pb-2 mb-3">ข้อมูลส่วนตัว</h6>
+              </div>
+
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="first_name_last_name" class="form-label">ชื่อ-นามสกุล <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="first_name_last_name" [(ngModel)]="user.first_name_last_name" name="first_name_last_name" required placeholder="ชื่อ นามสกุล">
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="mobile" class="form-label">เบอร์โทรศัพท์</label>
+                  <input type="tel" class="form-control" id="mobile" [(ngModel)]="user.mobile" name="mobile" placeholder="0xx-xxx-xxxx">
+                </div>
+              </div>
+            </div>
+
+            <!-- ข้อมูลบัญชี -->
+            <div class="row mb-4">
+              <div class="col-md-12">
+                <h6 class="border-bottom pb-2 mb-3">ข้อมูลบัญชี</h6>
+              </div>
+
+              <div class="col-md-2">
+                <div class="mb-3">
+                  <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="username"
+                    [(ngModel)]="user.username"
+                    name="username"
+                    required
+                    placeholder="username">
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="mb-3">
+                  <label for="email" class="form-label">อีเมล <span class="text-danger">*</span></label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    [class.is-invalid]="isEmailInvalid()"
+                    [class.is-valid]="emailTouched && isEmailValid()"
+                    id="email"
+                    [(ngModel)]="user.email"
+                    name="email"
+                    (blur)="onEmailBlur()"
+                    required
+                    placeholder="example@email.com">
+                  <small class="form-text text-success" *ngIf="emailTouched && isEmailValid()">
+                    <i class="fas fa-check-circle"></i> รูปแบบอีเมลถูกต้อง
+                  </small>
+                  <small class="form-text text-danger" *ngIf="isEmailInvalid()">
+                    <i class="fas fa-exclamation-circle"></i> รูปแบบอีเมลไม่ถูกต้อง
+                  </small>
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="mb-3">
+                  <label for="password" class="form-label">รหัสผ่าน <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <input
+                      [type]="passwordFieldType"
+                      class="form-control"
+                      [class.is-invalid]="isPasswordInvalid()"
+                      [class.is-valid]="passwordTouched && isPasswordValid()"
+                      id="password"
+                      [(ngModel)]="user.password"
+                      name="password"
+                      (blur)="onPasswordBlur()"
+                      required>
+                    <button class="btn btn-outline-secondary" type="button" (click)="togglePasswordVisibility()">
+                      <i [class]="passwordFieldType === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+                    </button>
+                  </div>
+                  <small class="form-text text-muted" *ngIf="!isPasswordInvalid()">รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร</small>
+                  <small class="form-text text-danger" *ngIf="isPasswordInvalid()">
+                    <i class="fas fa-exclamation-circle"></i> รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร
+                  </small>
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="mb-3">
+                  <label for="confirmPassword" class="form-label">ยืนยันรหัสผ่าน <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <input
+                      [type]="confirmPasswordFieldType"
+                      class="form-control"
+                      [class.is-invalid]="isConfirmPasswordInvalid()"
+                      [class.is-valid]="isPasswordMatch()"
+                      id="confirmPassword"
+                      [(ngModel)]="confirmPassword"
+                      name="confirmPassword"
+                      (blur)="onConfirmPasswordBlur()"
+                      required>
+                    <button class="btn btn-outline-secondary" type="button" (click)="toggleConfirmPasswordVisibility()">
+                      <i [class]="confirmPasswordFieldType === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+                    </button>
+                  </div>
+                  <small class="form-text text-success" *ngIf="isPasswordMatch()">
+                    <i class="fas fa-check-circle"></i> รหัสผ่านตรงกัน
+                  </small>
+                  <small class="form-text text-danger" *ngIf="isConfirmPasswordInvalid()">
+                    <i class="fas fa-exclamation-circle"></i> รหัสผ่านไม่ตรงกัน
+                  </small>
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="mb-3">
+                  <label for="role_id" class="form-label">เลือกสิทธิ์ <span class="text-danger">*</span></label>
+                  <ng-multiselect-dropdown class="custom-size"
+                    [placeholder]="'-- เลือกสิทธิ์การเข้าใช้งาน --'"
+                    [data]="availableRoles"
+                    [(ngModel)]="selectedRoles"
+                    [settings]="roleDropdownSettings"
+                    (onSelect)="onRoleSelect($event)"
+                    (onDeSelect)="onRoleDeselect($event)"
+                    name="role_id">
+                  </ng-multiselect-dropdown>
+                  <small class="form-text text-muted d-block" *ngIf="availableRoles.length === 0">
+                    ไม่มีข้อมูลสิทธิ์ในระบบ
+                  </small>
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="mb-3">
+                  <label for="department" class="form-label">หน่วยงาน</label>
+                  <ng-multiselect-dropdown class="custom-size"
+                    [placeholder]="'-- เลือกหน่วยงาน --'"
+                    [data]="availableJobDepartments"
+                    [(ngModel)]="selectedJobDepartments"
+                    [settings]="jobDepartmentDropdownSettings"
+                    (onSelect)="onJobDepartmentSelect($event)"
+                    (onDeSelect)="onJobDepartmentDeselect($event)"
+                    name="department">
+                  </ng-multiselect-dropdown>
+                  <small class="form-text text-muted d-block" *ngIf="availableJobDepartments.length === 0">
+                    ไม่มีข้อมูลหน่วยงานในระบบ
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- ปุ่มดำเนินการ -->
+            <div class="row">
+              <div class="col-md-12">
+                <div class="d-flex justify-content-end gap-2">
+                  <button type="button" class="btn btn-secondary" (click)="onCancel()" [disabled]="loading">
+                    <i class="fas fa-times me-1"></i>ยกเลิก
+                  </button>
+                  <button type="submit" class="btn btn-success" [disabled]="loading">
+                    <span *ngIf="loading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    <i *ngIf="!loading" class="fas fa-save me-1"></i>
+                    {{ loading ? 'กำลังบันทึก...' : 'บันทึก' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

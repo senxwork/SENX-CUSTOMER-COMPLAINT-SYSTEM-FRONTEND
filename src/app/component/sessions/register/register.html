@@ -1,0 +1,70 @@
+<div class="container-fluid p-0">
+  <div class="row m-0">
+    <div class="col-12 p-0">
+      <div class="login-card login-dark">
+        <div>
+          <div class="login-main">
+            <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+              <h4 class="text-center">สร้างบัญชีใหม่</h4>
+              <p class="text-center">กรอกข้อมูลเพื่อลงทะเบียน</p>
+
+              <div class="form-group mb-3">
+                <label class="col-form-label">ชื่อ-นามสกุล <span class="text-danger">*</span></label>
+                <input class="form-control" type="text" formControlName="first_name_last_name"
+                       placeholder="ชื่อ-นามสกุล">
+              </div>
+
+              <div class="form-group mb-3">
+                <label class="col-form-label">อีเมล <span class="text-danger">*</span></label>
+                <input class="form-control" type="email" formControlName="email"
+                       placeholder="อีเมล">
+              </div>
+
+              <div class="form-group mb-3">
+                <label class="col-form-label">ชื่อผู้ใช้ <span class="text-danger">*</span></label>
+                <input class="form-control" type="text" formControlName="username"
+                       placeholder="ชื่อผู้ใช้">
+              </div>
+
+              <div class="form-group mb-3">
+                <label class="col-form-label">รหัสผ่าน <span class="text-danger">*</span></label>
+                <div class="form-input position-relative">
+                  <input class="form-control" [type]="showPassword ? 'text' : 'password'"
+                         formControlName="password" placeholder="รหัสผ่าน">
+                  <div class="show-hide" (click)="togglePassword()">
+                    <span [class]="showPassword ? 'show' : ''"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label class="col-form-label">แผนก</label>
+                <input class="form-control" type="text" formControlName="department"
+                       placeholder="แผนก">
+              </div>
+
+              <div class="form-group mb-3">
+                <label class="col-form-label">เบอร์โทรศัพท์</label>
+                <input class="form-control" type="text" formControlName="mobile"
+                       placeholder="เบอร์โทรศัพท์">
+              </div>
+
+              <div class="form-group mb-0 mt-4">
+                <button class="btn btn-primary btn-block w-100" type="submit" [disabled]="loading">
+                  @if (loading) {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                  }
+                  สร้างบัญชี
+                </button>
+              </div>
+
+              <p class="mt-4 mb-0 text-center">
+                มีบัญชีอยู่แล้ว? <a class="ms-2" routerLink="/sessions/login">เข้าสู่ระบบ</a>
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

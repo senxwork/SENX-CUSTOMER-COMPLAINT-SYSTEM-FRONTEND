@@ -1,0 +1,135 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="dept-card">
+        <div class="dept-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="dept-header-icon">
+              <i class="fa fa-plus"></i>
+            </div>
+            <div>
+              <h5 class="dept-title">เพิ่มหน่วยงาน</h5>
+              <p class="dept-subtitle">เพิ่มหน่วยงานใหม่และข้อมูลผู้ติดต่อ</p>
+            </div>
+          </div>
+        </div>
+        <div class="dept-card-body">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <!-- ข้อมูลหน่วยงาน -->
+            <div class="dept-section">
+              <div class="dept-section-title">
+                <i class="fa fa-info-circle me-1"></i>ข้อมูลหน่วยงาน
+              </div>
+              <div class="dept-info-grid">
+                <div class="dept-field">
+                  <label class="dept-field-label">บริษัท <span class="text-danger">*</span></label>
+                  <div class="d-flex gap-3 mt-1">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" formControlName="company" value="SENA" id="companySena">
+                      <label class="form-check-label" for="companySena">
+                        <span class="company-badge sena">SENA</span>
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" formControlName="company" value="SENX" id="companySenx">
+                      <label class="form-check-label" for="companySenx">
+                        <span class="company-badge senx">SENX</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="dept-field">
+                  <label class="dept-field-label">ชื่อหน่วยงาน <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control dept-input" formControlName="department_name"
+                         placeholder="กรอกชื่อหน่วยงาน">
+                </div>
+              </div>
+              <div class="dept-field mt-3">
+                <label class="dept-field-label"><i class="fa fa-file-text me-1"></i>ความรับผิดชอบ</label>
+                <textarea class="form-control dept-input" formControlName="responsibility"
+                          rows="4" placeholder="ระบุขอบเขตความรับผิดชอบของหน่วยงาน เช่น งานซ่อมบำรุง, งานระบบไฟฟ้า"></textarea>
+              </div>
+            </div>
+
+            <!-- ผู้ติดต่อ -->
+            <div class="dept-section">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="dept-section-title">
+                  <i class="fa fa-users me-1"></i>ผู้ติดต่อ
+                  @if (contacts.length > 0) {
+                    <span class="contact-count">{{ contacts.length }}</span>
+                  }
+                </div>
+                <button type="button" class="dept-add-btn" (click)="addContact()">
+                  <i class="fa fa-plus me-1"></i>เพิ่มผู้ติดต่อ
+                </button>
+              </div>
+
+              @if (contacts.length === 0) {
+                <div class="contact-empty">
+                  <i class="fa fa-user-plus"></i>
+                  <span>ยังไม่มีผู้ติดต่อ คลิก "เพิ่มผู้ติดต่อ" เพื่อเพิ่ม</span>
+                </div>
+              }
+
+              <div class="contact-list">
+                @for (contact of contacts; track $index; let i = $index) {
+                  <div class="contact-item" [class.is-primary]="contact.is_primary">
+                    @if (contact.is_primary) {
+                      <div class="primary-ribbon"><i class="fa fa-star me-1"></i>ผู้ติดต่อหลัก</div>
+                    }
+                    <div class="contact-item-header">
+                      <div class="contact-item-number">{{ i + 1 }}</div>
+                      <div class="contact-item-actions">
+                        @if (!contact.is_primary) {
+                          <button type="button" class="contact-action-btn primary-btn" (click)="setPrimary(i)" title="ตั้งเป็นผู้ติดต่อหลัก">
+                            <i class="fa fa-star"></i>
+                          </button>
+                        }
+                        <button type="button" class="contact-action-btn delete-btn" (click)="removeContact(i)" title="ลบ">
+                          <i class="fa fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="contact-fields">
+                      <div class="contact-field">
+                        <label class="contact-field-label"><i class="fa fa-user me-1"></i>ชื่อ-นามสกุล</label>
+                        <input type="text" class="form-control dept-input" [(ngModel)]="contact.name"
+                               [ngModelOptions]="{standalone: true}" placeholder="ชื่อ-นามสกุล">
+                      </div>
+                      <div class="contact-field">
+                        <label class="contact-field-label"><i class="fa fa-envelope me-1"></i>อีเมล</label>
+                        <input type="email" class="form-control dept-input" [(ngModel)]="contact.email"
+                               [ngModelOptions]="{standalone: true}" placeholder="example@email.com">
+                      </div>
+                      <div class="contact-field">
+                        <label class="contact-field-label"><i class="fa fa-phone me-1"></i>เบอร์โทร</label>
+                        <input type="text" class="form-control dept-input" [(ngModel)]="contact.phone"
+                               [ngModelOptions]="{standalone: true}" placeholder="0xx-xxx-xxxx">
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="dept-actions">
+              <button type="submit" class="dept-save-btn" [disabled]="loading">
+                @if (loading) {
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                } @else {
+                  <i class="fa fa-check me-1"></i>
+                }
+                บันทึก
+              </button>
+              <button type="button" class="dept-cancel-btn" (click)="cancel()">
+                <i class="fa fa-times me-1"></i>ยกเลิก
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

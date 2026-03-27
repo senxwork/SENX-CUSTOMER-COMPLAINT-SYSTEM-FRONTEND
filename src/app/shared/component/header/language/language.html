@@ -1,0 +1,23 @@
+<div class="translate_wrapper" [class.active]="navServices.language">
+  <div class="current_lang">
+    <div class="lang">
+      <i class="flag-icon flag-icon-{{ selectedLanguage.icon }}"></i>
+      <h6 class="lang-txt f-w-700 ms-1">{{ selectedLanguage.language }}</h6>
+    </div>
+  </div>
+  <ul
+    class="custom-menu profile-menu language-menu py-0 more_lang"
+    [class.active]="navServices.language"
+  >
+    @for (lang of languages; track lang) {
+      <li class="d-block">
+        <a class="lang" (click)="changeLanguage(lang)" data-value="English">
+          <i class="flag-icon flag-icon-{{ lang.icon }}"></i>
+          @if (lang.language) {
+            <div class="lang-txt">{{ lang.language }}</div>
+          }
+        </a>
+      </li>
+    }
+  </ul>
+</div>

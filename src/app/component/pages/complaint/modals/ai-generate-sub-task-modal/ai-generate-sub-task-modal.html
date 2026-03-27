@@ -1,0 +1,77 @@
+<div class="modal-header">
+  <h4 class="modal-title"><i class="fa fa-magic me-2"></i>AI+ Generate Tickets</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss()" [disabled]="loading"></button>
+</div>
+<div class="modal-body">
+  <!-- Step 1: Confirm -->
+  @if (step === 1) {
+  <div class="ai-confirm-container">
+    <div class="ai-confirm-icon">
+      <i class="fa fa-magic"></i>
+    </div>
+    <h5 class="ai-confirm-title">ยืนยันการใช้ AI สร้าง Ticket</h5>
+    <p class="ai-confirm-text">AI จะวิเคราะห์รายละเอียดงานและสร้าง Ticket อัตโนมัติ</p>
+    <div class="ai-confirm-info">
+      <div class="ai-confirm-row">
+        <span class="ai-confirm-label">เลขที่ Case</span>
+        <span class="ai-confirm-value">{{ parentComplaint?.case_number || '-' }}</span>
+      </div>
+      <div class="ai-confirm-row">
+        <span class="ai-confirm-label">รายละเอียดงาน</span>
+        <span class="ai-confirm-value ai-confirm-detail">{{ parentComplaint?.job_detail || '-' }}</span>
+      </div>
+    </div>
+    <button class="btn btn-primary ai-confirm-btn" (click)="generateAndCreate()">
+      <i class="fa fa-magic me-2"></i>เริ่มสร้าง Ticket ด้วย AI
+    </button>
+  </div>
+  }
+
+  <!-- Step 2: Loading -->
+  @if (step === 2) {
+  <div class="ai-loading-container">
+    <div class="ai-loading-icon">
+      <i class="fa fa-magic"></i>
+      <div class="ai-pulse-ring"></div>
+      <div class="ai-pulse-ring ai-pulse-ring-2"></div>
+    </div>
+    <h5 class="ai-loading-title">AI กำลังประมวลผลและสร้าง Ticket</h5>
+    <p class="ai-loading-text">กำลังวิเคราะห์รายละเอียดงานและสร้าง Ticket อัตโนมัติ</p>
+    <div class="ai-loading-dots">
+      <span class="ai-dot"></span>
+      <span class="ai-dot"></span>
+      <span class="ai-dot"></span>
+    </div>
+    <p class="ai-loading-hint">กรุณารอสักครู่ อาจใช้เวลา 10-30 วินาที</p>
+  </div>
+  }
+
+  <!-- Step 3: Done -->
+  @if (step === 3) {
+  <div class="ai-confirm-container">
+    @if (createdCount > 0) {
+    <div class="ai-confirm-icon" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #059669;">
+      <i class="fa fa-check-circle"></i>
+    </div>
+    <h5 class="ai-confirm-title">สร้าง Ticket สำเร็จ</h5>
+    <p class="ai-confirm-text">AI สร้าง Ticket ได้ <strong>{{ createdCount }}</strong> รายการ</p>
+    } @else {
+    <div class="ai-confirm-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #b45309;">
+      <i class="fa fa-info-circle"></i>
+    </div>
+    <h5 class="ai-confirm-title">AI ไม่พบรายการที่ต้องสร้าง</h5>
+    <p class="ai-confirm-text">ไม่มี Ticket ที่สามารถสร้างได้จากข้อมูลนี้</p>
+    }
+  </div>
+  }
+</div>
+<div class="modal-footer">
+  @if (step === 1) {
+  <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()">ปิด</button>
+  }
+  @if (step === 3) {
+  <button type="button" class="btn btn-primary" (click)="close()">
+    <i class="fa fa-check me-1"></i>ปิด
+  </button>
+  }
+</div>

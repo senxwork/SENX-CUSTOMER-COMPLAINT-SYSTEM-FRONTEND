@@ -1,0 +1,45 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5>แก้ไขประเภทเรื่อง Ticket</h5>
+        </div>
+        <div class="card-body">
+          @if (loadingData) {
+          <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          } @else {
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label class="form-label">ชื่อเรื่อง <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="sub_category_name" placeholder="กรอกชื่อเรื่อง">
+              @if (form.controls['sub_category_name'].touched && form.controls['sub_category_name'].errors?.['required']) {
+              <div class="text-danger small mt-1">กรุณากรอกชื่อเรื่อง</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">รายละเอียด</label>
+              <textarea class="form-control" formControlName="description" rows="3" placeholder="กรอกรายละเอียด (ถ้ามี)"></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="loading">
+                @if (loading) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                }
+                <i class="fa fa-save me-1"></i>บันทึก
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="loading">ยกเลิก</button>
+            </div>
+          </form>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,7 @@
+.cursor-pointer {
+  cursor: pointer;
+}
+
+::ng-deep .custom-font-size .multiselect-dropdown .dropdown-btn .selected-item-container .selected-item {
+  max-width: 1200px !important;
+}

@@ -1,0 +1,260 @@
+<!-- Loading -->
+@if (loading) {
+<div class="public-page">
+  <div class="public-container">
+    <div class="loading-state">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p>กำลังโหลดข้อมูล...</p>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Error -->
+@else if (error) {
+<div class="public-page">
+  <div class="public-container">
+    <div class="error-state">
+      <i class="fa fa-exclamation-triangle"></i>
+      <h2>ไม่พบ Ticket</h2>
+      <p>ลิงก์ไม่ถูกต้องหรือหมดอายุแล้ว กรุณาติดต่อผู้ดูแลระบบ</p>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Ticket Content -->
+@else if (ticket) {
+<div class="public-page">
+  <div class="public-container">
+    <!-- Header -->
+    <div class="public-header">
+      <div class="header-brand">
+        @if (ticket.department?.company === 'SENA') {
+        <img src="https://www.sena.co.th/images/logo-scroll.svg" alt="SENA" class="brand-logo" />
+        } @else {
+        <img src="https://senx-work.vms-systems.com/assets/images/logo.png" alt="SENX" class="brand-logo" />
+        }
+        <div class="brand-text">
+          <h1>CUSTOMER COMPLAINT SYSTEM</h1>
+        </div>
+      </div>
+      <div class="header-user">
+        <i class="fa fa-user-circle"></i>
+        <span>{{ contactName }}</span>
+      </div>
+    </div>
+
+    <!-- Ticket Card -->
+    <div class="ticket-card">
+      <!-- Ticket Header -->
+      <div class="ticket-card-header">
+        <div class="ticket-header-left">
+          <span class="ticket-number">{{ ticket.ticket_number }}</span>
+          <span class="ticket-status-pill" [ngClass]="'pill-' + ticket.status">
+            <span class="pill-dot"></span>
+            {{ getStatusText(ticket.status) }}
+          </span>
+          @if (ticket.urgent) {
+          <span class="ticket-urgent"><i class="fa fa-bolt"></i> ด่วน</span>
+          }
+        </div>
+        <div class="ticket-header-right">
+          <span class="ticket-duration" [class.ticket-duration--overdue]="isOverdue()" [class.ticket-duration--done]="ticket.status === 'completed' || ticket.status === 'cancelled'">
+            <i class="fa" [class.fa-clock-o]="!isOverdue()" [class.fa-exclamation-triangle]="isOverdue()"></i>
+            @if (ticket.status === 'completed' || ticket.status === 'cancelled') { ระยะเวลา : {{ getDurationDays() }} วัน } @else if (isOverdue()) { เกินกำหนด {{ getDurationDays() }} วัน } @else { ระยะเวลา : {{ getDurationDays() }} วัน }
+          </span>
+          <span class="ticket-date"><i class="fa fa-calendar-o"></i> {{ ticket.created_at | dateThai:'datetime' }}</span>
+          <span class="ticket-due-date" [class.ticket-due-date--overdue]="isOverdue()"> <i class="fa fa-calendar-times-o"></i> ครบกำหนด: {{ getDueDate() | dateThai:'short' }} </span>
+        </div>
+      </div>
+
+      <!-- Ticket Body -->
+      <div class="ticket-card-body">
+        <!-- Description -->
+        <div class="ticket-section">
+          <div class="section-title"><i class="fa fa-file-text-o"></i> รายละเอียดงาน</div>
+          <div class="ticket-description">{{ ticket.ticket_detail }}</div>
+        </div>
+
+        <!-- Info Grid -->
+        <div class="ticket-info-grid">
+          @if (ticket.parent?.project) {
+          <div class="info-item">
+            <span class="info-label"><i class="fa fa-map-marker"></i> โครงการ</span>
+            <span class="info-value">{{ ticket.parent.project.project_name_th || '-' }}</span>
+          </div>
+          }
+          <div class="info-item">
+            <span class="info-label"><i class="fa fa-folder-o"></i> หมวดหมู่</span>
+            <span class="info-value">{{ ticket.ticketCategory?.category_name || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label"><i class="fa fa-user"></i> ชื่อลูกค้า</span>
+            <span class="info-value">{{ ticket.parent?.customer_name || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label"><i class="fa fa-home"></i> บ้านเลขที่</span>
+            <span class="info-value">{{ ticket.parent?.house_name || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label"><i class="fa fa-phone"></i> เบอร์โทร</span>
+            <span class="info-value">{{ ticket.parent?.telephone || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label"><i class="fa fa-envelope-o"></i> Email</span>
+            <span class="info-value">{{ ticket.parent?.email || '-' }}</span>
+          </div>
+          @if (ticket.ticketSubCategory) {
+          <div class="info-item">
+            <span class="info-label"><i class="fa fa-file-text-o"></i> ประเภทเรื่อง</span>
+            <span class="info-value">{{ ticket.ticketSubCategory.sub_category_name }}</span>
+          </div>
+          }
+          <div class="info-item">
+            <span class="info-label"><i class="fa fa-building-o"></i> หน่วยงาน</span>
+            <span class="info-value">{{ ticket.department?.department_name || '-' }}</span>
+          </div>
+          @if (ticket.parent?.case_number) {
+          <div class="info-item">
+            <span class="info-label"><i class="fa fa-briefcase"></i> หมายเลข Case</span>
+            <span class="info-value">{{ ticket.parent.case_number }}</span>
+          </div>
+          }
+        </div>
+
+        <!-- Status Actions -->
+        @if (ticket.status !== 'completed' && ticket.status !== 'cancelled') {
+        <div class="status-actions">
+          <div class="section-title"><i class="fa fa-refresh"></i> เปลี่ยนสถานะ</div>
+          <div class="status-dropdown-wrapper" #statusDropdownRef>
+            <button class="status-dropdown-btn" [class]="'status-dropdown-btn--' + ticket.status" (click)="statusDropdownOpen = !statusDropdownOpen" [disabled]="statusUpdating">
+              <span class="status-dot" [class]="'status-dot--' + ticket.status"></span>
+              <span>{{ getStatusText(ticket.status) }}</span>
+              <i class="fa fa-chevron-down status-chevron" [class.open]="statusDropdownOpen"></i>
+            </button>
+            @if (statusDropdownOpen) {
+            <div class="status-dropdown-panel">
+              <div class="status-dropdown-item" [class.active]="ticket.status === 'open'" (click)="onStatusSelect('open')">
+                <span class="status-dot status-dot--open"></span>
+                <span>Open</span>
+                @if (ticket.status === 'open') {
+                <i class="fa fa-check status-check"></i>
+                }
+              </div>
+              <div class="status-dropdown-item" [class.active]="ticket.status === 'inprogress'" (click)="onStatusSelect('inprogress')">
+                <span class="status-dot status-dot--inprogress"></span>
+                <span>In Progress</span>
+                @if (ticket.status === 'inprogress') {
+                <i class="fa fa-check status-check"></i>
+                }
+              </div>
+              <div class="status-dropdown-item" [class.active]="ticket.status === 'completed'" (click)="onStatusSelect('completed')">
+                <span class="status-dot status-dot--completed"></span>
+                <span>Completed</span>
+                @if (ticket.status === 'completed') {
+                <i class="fa fa-check status-check"></i>
+                }
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+        }
+
+        <!-- Timeline -->
+        <div class="timeline-section">
+          <div class="section-title">
+            <i class="fa fa-comments-o"></i> บันทึกการดำเนินการ
+            <span class="timeline-count">{{ ticket.subTaskTransactions?.length || 0 }}</span>
+          </div>
+
+          @if (ticket.subTaskTransactions?.length > 0) {
+          <div class="timeline-list">
+            @for (tx of sortTransactions(ticket.subTaskTransactions); track tx.id) {
+            <div class="timeline-item" [class.timeline-item-external]="tx.commenter_name">
+              <div class="timeline-avatar" [class.timeline-avatar-external]="tx.commenter_name">
+                <i class="fa" [class.fa-user]="!tx.commenter_name" [class.fa-user-o]="tx.commenter_name"></i>
+              </div>
+              <div class="timeline-body">
+                <p class="timeline-text">{{ tx.transaction_detail }}</p>
+                <div class="timeline-footer">
+                  @if (tx.commenter_name) {
+                  <span class="timeline-author timeline-author-external"> <i class="fa fa-external-link"></i> โดย : {{ tx.commenter_name }} (ภายนอก) </span>
+                  } @else {
+                  <span class="timeline-author">โดย : {{ tx.user_created?.first_name_last_name || 'ระบบ' }}</span>
+                  }
+                  <span class="timeline-date">{{ tx.created_at | dateThai:'datetime' }}</span>
+                </div>
+                @if (tx.attachedFiles?.length > 0) {
+                <div class="timeline-files">
+                  @for (file of tx.attachedFiles; track file.id) { @if (isImageFile(file.file_name)) {
+                  <a [href]="getTransactionFileUrl(file.file_name)" target="_blank" class="file-thumbnail">
+                    <img [src]="getTransactionFileUrl(file.file_name)" [alt]="file.file_name" />
+                  </a>
+                  } @else if (isPdfFile(file.file_name)) {
+                  <a [href]="getTransactionFileUrl(file.file_name)" target="_blank" class="file-pdf-thumb">
+                    <i class="fa fa-file-pdf-o"></i>
+                  </a>
+                  } @else {
+                  <a [href]="getTransactionFileUrl(file.file_name)" target="_blank" class="file-chip">
+                    <i class="fa fa-paperclip"></i>
+                    <span>{{ file.file_name }}</span>
+                  </a>
+                  } }
+                </div>
+                }
+              </div>
+            </div>
+            }
+          </div>
+          } @else {
+          <div class="no-comments">
+            <i class="fa fa-comment-o"></i>
+            <span>ยังไม่มีบันทึก</span>
+          </div>
+          }
+
+          <!-- Add Comment -->
+          @if (ticket.status !== 'completed' && ticket.status !== 'cancelled') {
+          <div class="comment-section">
+            <div class="comment-user-info">
+              <i class="fa fa-user-circle"></i>
+              <span>บันทึกในชื่อ: <strong>{{ contactName }}</strong></span>
+            </div>
+            <textarea class="comment-textarea" rows="3" [(ngModel)]="comment" placeholder="เพิ่มบันทึกการดำเนินการ..."></textarea>
+            <div class="comment-toolbar">
+              <label class="attach-btn">
+                <i class="fa fa-paperclip"></i>
+                <span>แนบไฟล์</span>
+                <input type="file" multiple hidden accept="image/*,.pdf" (change)="onFilesSelected($event)" />
+              </label>
+              <button class="send-btn" (click)="addComment()" [disabled]="submitting || !comment.trim()">
+                @if (submitting) {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                <i class="fa fa-paper-plane"></i>
+                <span>ส่งบันทึก</span>
+              </button>
+            </div>
+            @if (commentFiles.length > 0) {
+            <div class="attached-files-list">
+              @for (file of commentFiles; track file.name; let i = $index) {
+              <span class="attached-file">
+                <i class="fa fa-file-o"></i>
+                <span>{{ file.name }}</span>
+                <button type="button" class="remove-file-btn" (click)="removeFile(i)">
+                  <i class="fa fa-times"></i>
+                </button>
+              </span>
+              }
+            </div>
+            }
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+}

@@ -1,0 +1,84 @@
+<div class="modal-header">
+  <h5 class="modal-title"><i class="fa fa-plus-circle me-2"></i>สร้าง Ticket</h5>
+  <button type="button" class="btn-close" (click)="activeModal.dismiss()"></button>
+</div>
+
+<div class="modal-body">
+  <!-- รายละเอียดงาน -->
+  <div class="mb-3">
+    <label class="form-label fw-semibold">รายละเอียดงาน <span class="text-danger">*</span></label>
+    <textarea
+      class="form-control"
+      rows="3"
+      [(ngModel)]="ticketDetail"
+      placeholder="กรอกรายละเอียดของ Ticket..."
+    ></textarea>
+  </div>
+
+  <div class="row">
+    <!-- หน่วยงาน -->
+    <div class="col-md-6 mb-3">
+      <label class="form-label fw-semibold">มอบหมายหน่วยงาน</label>
+      <select class="form-select" [(ngModel)]="selectedDepartmentId">
+        <option value="">-- เลือกหน่วยงาน --</option>
+        @for (dept of departments; track dept.id) {
+        <option [value]="dept.id">{{ dept.department_name }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- หมวดหมู่ -->
+    <div class="col-md-6 mb-3">
+      <label class="form-label fw-semibold">หมวดหมู่</label>
+      <select class="form-select" [(ngModel)]="selectedCategoryId">
+        <option value="">-- เลือกหมวดหมู่ --</option>
+        @for (cat of categories; track cat.id) {
+        <option [value]="cat.id">{{ cat.category_name }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- ประเภทเรื่อง -->
+    <div class="col-md-6 mb-3">
+      <label class="form-label fw-semibold">ประเภทเรื่อง</label>
+      <select class="form-select" [(ngModel)]="selectedSubCategoryId">
+        <option value="">-- เลือกประเภทเรื่อง --</option>
+        @for (sc of subCategories; track sc.id) {
+        <option [value]="sc.id">{{ sc.sub_category_name }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- ดำเนินการ -->
+    <div class="col-md-3 mb-3 d-flex align-items-end">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="processedSwitch" [(ngModel)]="isProcessed">
+        <label class="form-check-label fw-semibold" for="processedSwitch">
+          <i class="fa fa-check-circle text-success me-1"></i>ดำเนินการ
+        </label>
+      </div>
+    </div>
+
+    <!-- ด่วน -->
+    <div class="col-md-3 mb-3 d-flex align-items-end">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="urgentSwitch" [(ngModel)]="urgent">
+        <label class="form-check-label fw-semibold" for="urgentSwitch">
+          <i class="fa fa-bolt text-danger me-1"></i>ด่วน
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()" [disabled]="loading">ยกเลิก</button>
+  <button type="button" class="btn btn-primary" (click)="create()" [disabled]="loading || !ticketDetail.trim()">
+    @if (loading) {
+    <span class="spinner-border spinner-border-sm me-1"></span>
+    }
+    <i class="fa fa-save me-1"></i>บันทึก
+  </button>
+</div>

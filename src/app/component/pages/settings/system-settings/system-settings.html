@@ -1,0 +1,126 @@
+<div class="settings-page">
+  <div class="settings-header">
+    <h4><i class="fa fa-cogs me-2"></i>ตั้งค่าระบบ</h4>
+    <p class="text-muted">จัดการค่าตั้งค่าทั่วไปของระบบ</p>
+  </div>
+
+  @if (loading) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="text-muted mt-2">กำลังโหลด...</p>
+  </div>
+  } @else {
+
+  <div class="row">
+    <!-- N8N Webhook URL -->
+    <div class="col-6">
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <div class="settings-card-icon">
+            <i class="fa fa-magic"></i>
+          </div>
+          <div>
+            <h5 class="settings-card-title">AI Generate (N8N Webhook)</h5>
+            <p class="settings-card-desc">ตั้งค่า Webhook URL ของ N8N สำหรับ AI สร้าง Ticket อัตโนมัติ</p>
+          </div>
+        </div>
+        <div class="settings-card-body">
+          <label class="settings-label">Webhook URL</label>
+          <div class="input-group-custom">
+            <span class="input-prefix"><i class="fa fa-link"></i></span>
+            <input
+              type="url"
+              class="settings-input"
+              [(ngModel)]="n8nWebhookUrl"
+              placeholder="https://n8n.example.com/webhook/..."
+            />
+          </div>
+          <p class="settings-hint">
+            <i class="fa fa-info-circle me-1"></i>
+            URL นี้จะถูกเรียกเมื่อกดปุ่ม AI+ Generate ในหน้า Ticket
+          </p>
+          <div class="settings-card-footer">
+            <button class="save-btn" (click)="saveN8nUrl()" [disabled]="saving">
+              @if (saving) {
+              <span class="spinner-border spinner-border-sm me-1"></span>
+              }
+              <i class="fa fa-save me-1"></i>บันทึก
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Repair API (Smartfy Home) -->
+    <div class="col-6">
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <div class="settings-card-icon" style="background: linear-gradient(135deg, #f97316, #ea580c);">
+            <i class="fa fa-wrench"></i>
+          </div>
+          <div>
+            <h5 class="settings-card-title">API แจ้งซ่อม (Smartfy Home)</h5>
+            <p class="settings-card-desc">ตั้งค่า API สำหรับส่งแจ้งซ่อมอัตโนมัติเมื่อ Ticket มีหมวดหมู่ "แจ้งซ่อม"</p>
+          </div>
+        </div>
+        <div class="settings-card-body">
+          <label class="settings-label">POST URL (สร้างแจ้งซ่อม)</label>
+          <div class="input-group-custom">
+            <span class="input-prefix"><i class="fa fa-upload"></i></span>
+            <input
+              type="url"
+              class="settings-input"
+              [(ngModel)]="repairApiUrl"
+              placeholder="https://api-uat.smartifyhome.co/api/repair-requests?populate=*"
+            />
+          </div>
+          <p class="settings-hint">
+            <i class="fa fa-info-circle me-1"></i>
+            URL เต็มสำหรับ POST สร้างแจ้งซ่อม
+          </p>
+
+          <label class="settings-label mt-3">GET URL (ดูรายละเอียด)</label>
+          <div class="input-group-custom">
+            <span class="input-prefix"><i class="fa fa-download"></i></span>
+            <input
+              type="url"
+              class="settings-input"
+              [(ngModel)]="repairApiGetUrl"
+              placeholder="https://api-uat.smartifyhome.co/api/repair-requests/{id}?populate=*"
+            />
+          </div>
+          <p class="settings-hint">
+            <i class="fa fa-info-circle me-1"></i>
+            URL สำหรับ GET ดูรายละเอียด ใช้ &#123;id&#125; แทนตำแหน่ง ID
+          </p>
+
+          <label class="settings-label mt-3">Bearer Token</label>
+          <div class="input-group-custom">
+            <span class="input-prefix"><i class="fa fa-key"></i></span>
+            <input
+              type="password"
+              class="settings-input"
+              [(ngModel)]="repairApiToken"
+              placeholder="ใส่ Bearer Token..."
+            />
+          </div>
+          <p class="settings-hint">
+            <i class="fa fa-info-circle me-1"></i>
+            Token สำหรับ Authentication กับ Smartify API
+          </p>
+
+          <div class="settings-card-footer">
+            <button class="save-btn" (click)="saveRepairApi()" [disabled]="savingRepair">
+              @if (savingRepair) {
+              <span class="spinner-border spinner-border-sm me-1"></span>
+              }
+              <i class="fa fa-save me-1"></i>บันทึก
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  }
+</div>

@@ -1,0 +1,18 @@
+// ==========================================
+// Update Status Modal - Component Styles
+// ==========================================
+
+.form-check {
+  padding: 10px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  margin-left: 0;
+
+  &:hover {
+    background-color: var(--light-color);
+  }
+
+  .form-check-input {
+    margin-top: 0.35em;
+  }
+}

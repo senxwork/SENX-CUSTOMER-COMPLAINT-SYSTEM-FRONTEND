@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ng generate:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run ng:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm start)",
+      "Bash(ng build)",
+      "Bash(mkdir:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(dir:*)",
+      "Bash(ls -la \"d:\\\\JOB\\\\SENX\\\\Customer Service\\\\frontend-new\\\\src\\\\app\\\\component\\\\pages\"\" 2>/dev/null || echo \"Directory not found \")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

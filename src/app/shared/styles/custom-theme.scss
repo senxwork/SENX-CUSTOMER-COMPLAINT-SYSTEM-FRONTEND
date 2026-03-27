@@ -1,0 +1,243 @@
+// ==========================================
+// Custom Theme - Using Admiro Design Variables
+// ==========================================
+// This file should ONLY contain app-specific styles
+// that DON'T already exist in Admiro's template.
+// DO NOT override card, btn, table, badge, modal etc.
+// — let Admiro's built-in styles handle those.
+
+// ==========================================
+// Status Badge Styles (app-specific)
+// ==========================================
+.status-open {
+  background-color: var(--theme-default) !important;
+  color: #fff;
+}
+
+.status-inprogress {
+  background-color: var(--warning-color) !important;
+  color: #fff;
+}
+
+.status-completed {
+  background-color: var(--success-color) !important;
+  color: #fff;
+}
+
+.status-cancelled {
+  background-color: var(--body-font-color) !important;
+  color: #fff;
+}
+
+// ==========================================
+// Role & User Badge Styles (app-specific)
+// ==========================================
+.badge-user {
+  background-color: var(--theme-default) !important;
+  color: #fff;
+}
+
+.badge-admin {
+  background-color: var(--theme-secondary) !important;
+  color: #fff;
+}
+
+.badge-active {
+  background-color: var(--success-color) !important;
+  color: #fff;
+}
+
+.badge-inactive {
+  background-color: var(--light-gray-color) !important;
+  color: #fff;
+}
+
+// ==========================================
+// Modal Header - Use Admiro primary
+// ==========================================
+.modal-header {
+  background-color: var(--theme-default);
+  color: #fff;
+  border-radius: 1.5rem 1.5rem 0 0;
+
+  .btn-close {
+    filter: brightness(0) invert(1);
+  }
+}
+
+.modal-content {
+  border-radius: 1.5rem;
+  border: none;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+// ==========================================
+// Alert Styles
+// ==========================================
+.alert-info {
+  background-color: rgba(2, 162, 185, 0.1);
+  border-color: rgba(2, 162, 185, 0.2);
+  color: var(--info-color);
+}
+
+// ==========================================
+// Multiselect Dropdown Styles (3rd party override)
+// ==========================================
+::ng-deep .multiselect-dropdown {
+  .dropdown-btn {
+    border: 1px solid var(--form-select) !important;
+    border-radius: 0.375rem !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem !important;
+
+    &:focus {
+      border-color: var(--theme-default) !important;
+      box-shadow: 0 0 0 0.2rem rgba(48, 142, 135, 0.15) !important;
+    }
+  }
+
+  .selected-item {
+    background-color: var(--theme-default) !important;
+    border: none !important;
+    border-radius: 4px !important;
+    max-width: 100% !important;
+  }
+
+  .dropdown-list {
+    border: 1px solid var(--form-select) !important;
+    border-radius: 0.375rem !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .item1 {
+    &:hover {
+      background-color: var(--active-bg-color) !important;
+    }
+  }
+
+  .filter-textbox input {
+    border: 1px solid var(--form-select) !important;
+    border-radius: 0.375rem !important;
+
+    &:focus {
+      border-color: var(--theme-default) !important;
+    }
+  }
+}
+
+// Custom Font Size for Dropdown (keep selected item visible)
+.custom-font-size {
+  ::ng-deep .multiselect-dropdown .dropdown-btn .selected-item-container .selected-item {
+    max-width: 1200px !important;
+  }
+}
+
+// ==========================================
+// Action Buttons Group (app-specific)
+// ==========================================
+.btn-group-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+
+  .btn {
+    padding: 0.35rem 0.5rem;
+    border-radius: 4px;
+
+    i {
+      font-size: 0.75rem;
+    }
+  }
+}
+
+// ==========================================
+// Per Page Select (app-specific)
+// ==========================================
+.per-page-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  label {
+    font-size: 0.875rem;
+    color: var(--body-font-color);
+    margin-bottom: 0;
+  }
+
+  select {
+    width: auto;
+    min-width: 70px;
+  }
+}
+
+// ==========================================
+// Filter Section (app-specific)
+// ==========================================
+.filter-section {
+  background-color: var(--white);
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+// Results Info
+.results-info {
+  color: var(--body-font-color);
+  font-size: 0.875rem;
+}
+
+// ==========================================
+// Loading Spinner (app-specific)
+// ==========================================
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: var(--body-font-color);
+
+  .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    color: var(--theme-default);
+  }
+
+  p {
+    margin-top: 1rem;
+    font-size: 0.9375rem;
+  }
+}
+
+// ==========================================
+// Empty State (app-specific)
+// ==========================================
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--light-text);
+
+  i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--light-gray);
+  }
+
+  h5 {
+    color: var(--body-font-color);
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    font-size: 0.9375rem;
+  }
+}
+
+// ==========================================
+// Responsive
+// ==========================================
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1rem;
+  }
+}

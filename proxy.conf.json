@@ -1,0 +1,12 @@
+{
+  "/api": {
+    "target": "http://localhost:9012",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "cookieDomainRewrite": "",
+    "headers": {
+      "ngrok-skip-browser-warning": "true"
+    }
+  }
+}

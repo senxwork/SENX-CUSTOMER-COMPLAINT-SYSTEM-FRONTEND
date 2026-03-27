@@ -1,0 +1,16 @@
+.table {
+  th, td {
+    vertical-align: middle;
+  }
+}
+
+.contact-line {
+  font-size: 0.875rem;
+  line-height: 1.6;
+
+  &:not(:last-child) {
+    border-bottom: 1px dashed #e2e8f0;
+    padding-bottom: 2px;
+    margin-bottom: 2px;
+  }
+}

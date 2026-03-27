@@ -1,0 +1,40 @@
+<div class="modal-header">
+  <h5 class="modal-title"><i class="fa fa-money"></i> บันทึกค่าใช้จ่าย</h5>
+  <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+</div>
+
+<div class="modal-body">
+  <div class="mb-3">
+    <label class="form-label">Ticket</label>
+    <p class="fw-medium text-muted">{{ subTask?.ticket_number }} - {{ subTask?.ticket_detail }}</p>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">จำนวนเงิน (บาท) <span class="text-danger">*</span></label>
+    <input type="number" class="form-control" [(ngModel)]="expenseAmount" placeholder="0.00" min="0" step="0.01" />
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">รายละเอียด</label>
+    <textarea class="form-control" rows="3" [(ngModel)]="expenseDescription" placeholder="รายละเอียดค่าใช้จ่าย (ถ้ามี)"></textarea>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <div class="modal-footer-left">
+    @if (subTask?.expense_amount) {
+    <button type="button" class="btn btn-outline-danger btn-sm" (click)="onClearExpense()" [disabled]="loading">
+      <i class="fa fa-times"></i> ไม่มีค่าใช้จ่าย
+    </button>
+    }
+  </div>
+  <div class="modal-footer-right">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">ยกเลิก</button>
+    <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading">
+      @if (loading) {
+        <span class="spinner-border spinner-border-sm me-2"></span>
+      }
+      <i class="fa fa-save"></i> บันทึก
+    </button>
+  </div>
+</div>

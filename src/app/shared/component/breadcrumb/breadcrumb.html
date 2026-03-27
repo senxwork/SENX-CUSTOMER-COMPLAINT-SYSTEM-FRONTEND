@@ -1,0 +1,23 @@
+<div class="page-title">
+  <div class="row">
+    <div class="col-sm-6 col-12">
+      <h2>{{ title }}</h2>
+      <p class="mb-0 text-title-gray">{{ des }}</p>
+    </div>
+    <div class="col-sm-6">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a [routerLink]="'/dashboard/default'">
+            <i class="iconly-Home icli svg-color"></i>
+          </a>
+        </li>
+    
+        @if (breadcrumbs?.childBreadcrumb) {
+          <li class="breadcrumb-item active">
+            {{ breadcrumbs?.childBreadcrumb }}
+          </li>
+        }
+      </ol>
+    </div>
+  </div>
+</div>
