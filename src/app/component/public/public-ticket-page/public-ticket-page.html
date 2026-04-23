@@ -39,9 +39,19 @@
           <h1>CUSTOMER COMPLAINT SYSTEM</h1>
         </div>
       </div>
-      <div class="header-user">
-        <i class="fa fa-user-circle"></i>
-        <span>{{ contactName }}</span>
+      <div class="header-actions">
+        @if (ticket.parent?.complaint_id) {
+        <a class="btn-open-ccs"
+           [href]="'/sessions/login?returnUrl=/pages/complaint/view/' + ticket.parent.complaint_id"
+           title="เข้าสู่ระบบ CCS เพื่อจัดการ Ticket นี้">
+          <i class="fa fa-external-link"></i>
+          <span>เปิดในระบบ CCS</span>
+        </a>
+        }
+        <div class="header-user">
+          <i class="fa fa-user-circle"></i>
+          <span>{{ contactName }}</span>
+        </div>
       </div>
     </div>
 

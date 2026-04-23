@@ -51,7 +51,8 @@ export class ProjectEditComponent implements OnInit {
       project_name_th: ['', [Validators.required, Validators.minLength(3)]],
       project_email: ['', [Validators.required, Validators.email]],
       project_type: [''],
-      is_managed: [false]
+      is_managed: [false],
+      is_sena: [false]
     });
   }
 
@@ -66,7 +67,8 @@ export class ProjectEditComponent implements OnInit {
           project_name_th: project.project_name_th,
           project_email: project.project_email,
           project_type: project.project_type || '',
-          is_managed: project.is_managed || false
+          is_managed: project.is_managed || false,
+          is_sena: project.is_sena || false
         });
 
         // Store current project status

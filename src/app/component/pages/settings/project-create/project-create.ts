@@ -35,7 +35,8 @@ export class ProjectCreateComponent implements OnInit {
       project_name_th: ['', [Validators.required, Validators.minLength(3)]],
       project_email: ['', [Validators.required, Validators.email]],
       project_type: [''],
-      is_managed: [false]
+      is_managed: [false],
+      is_sena: [false]
     });
   }
 

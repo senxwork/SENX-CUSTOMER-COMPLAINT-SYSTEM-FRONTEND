@@ -340,10 +340,12 @@ export class ReportComponent implements OnInit {
     }
 
     const headers = [
-      'ลำดับ', 'เลขที่ Case', 'ลูกค้า', 'โครงการ', 'ประเภท',
+      'ลำดับ', 'เลขที่ Case', 'ลูกค้า', 'เจ้าของโครงการ', 'โครงการ', 'ประเภทโครงการ',
       'ช่องทาง', 'ผู้สร้าง', 'รายละเอียด Case', 'สถานะ Case', 'วันที่สร้าง Case',
       'OWNER',
-      'เลขที่ Ticket', 'รายละเอียด Ticket', 'หน่วยงาน', 'สถานะ Ticket', 'วันที่สร้าง Ticket', 'จำนวนวัน (SLA)', 'วันที่ปิด Ticket'
+      'เลขที่ Ticket', 'รายละเอียด Ticket', 'หมวดหมู่ Ticket', 'ประเภทเรื่อง Ticket', 'หน่วยงาน', 'สถานะ Ticket', 'ความเร่งด่วน', 'วันที่สร้าง Ticket', 'จำนวนวัน (SLA)', 'วันที่ปิด Ticket',
+      'โครงการเสนา', 'ประเภท (Asset)', 'สถานะประกัน',
+      'บันทึกการดำเนินการ'
     ];
 
     const data: any[][] = [];
@@ -354,8 +356,9 @@ export class ReportComponent implements OnInit {
         rowNum++,
         item.case_number || '-',
         item.customer_name || '-',
+        item.project?.is_sena ? 'SENA' : 'NON-SENA',
         item.project?.project_name_th || '-',
-        item.complaintJobCatagory?.catagory_name || '-',
+        item.project?.project_type || '-',
         item.contactChannel?.channel_name || '-',
         item.user_created?.first_name_last_name || '-',
         item.job_detail || '-',
@@ -366,7 +369,7 @@ export class ReportComponent implements OnInit {
 
       const tickets = item.subTasks || [];
       if (tickets.length === 0) {
-        data.push([...caseColumns, '-', '-', '-', '-', '-', '-', '-']);
+        data.push([...caseColumns, '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']);
       } else {
         for (const t of tickets) {
           const isDone = t.status === 'completed' || t.status === 'cancelled';
@@ -380,15 +383,38 @@ export class ReportComponent implements OnInit {
           const closedDate = isDone && (t.completed_at || t.updated_at)
             ? this.formatDateForExcel(t.completed_at || t.updated_at)
             : '-';
+          const txList = (t.subTaskTransactions || [])
+            .slice()
+            .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+            .map((tx: any) => {
+              const when = tx.created_at ? this.formatDateForExcel(tx.created_at) : '';
+              const who = tx.user_created?.first_name_last_name || tx.commenter_name || 'ระบบ';
+              const detail = (tx.transaction_detail || '').trim();
+              return `[${when}] ${who}\n${detail}`;
+            })
+            .join('\n────────────────\n');
+          const senaText = t.is_sena === true ? 'โครงการเสนา'
+            : t.is_sena === false ? 'ไม่ใช่โครงการเสนา'
+            : '-';
+          const warrantyText = t.warranty_status === true ? 'อยู่ในประกัน'
+            : t.warranty_status === false ? 'หมดประกันแล้ว'
+            : '-';
           data.push([
             ...caseColumns,
             t.ticket_number || '-',
             t.ticket_detail || '-',
+            t.ticketCategory?.category_name || '-',
+            t.ticketSubCategory?.sub_category_name || '-',
             t.department?.department_name || '-',
             this.getStatusText(t.status),
+            t.urgent ? 'ด่วน' : 'ไม่ด่วน',
             t.created_at ? this.formatDateForExcel(t.created_at) : '-',
             slaText,
-            closedDate
+            closedDate,
+            senaText,
+            t.asset_type || '-',
+            warrantyText,
+            txList || '-'
           ]);
         }
       }

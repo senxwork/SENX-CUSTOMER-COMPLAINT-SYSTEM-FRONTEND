@@ -66,6 +66,7 @@
                   <th>ชื่อโครงการ</th>
                   <th width="140" style="white-space: nowrap;">ประเภทโครงการ</th>
                   <th width="120" class="text-center">เข้าบริหาร</th>
+                  <th width="140" class="text-center">เจ้าของโครงการ</th>
                   <th class="text-center" width="100">โลโก้</th>
                   <th width="120">สถานะ</th>
                   <th width="120" class="text-center">จัดการ</th>
@@ -103,6 +104,10 @@
                   <td class="text-center">
                     <span *ngIf="Project.is_managed" class="badge bg-success"><i class="fa fa-check me-1"></i>เข้าบริหาร</span>
                     <span *ngIf="!Project.is_managed" class="text-muted">-</span>
+                  </td>
+                  <td class="text-center">
+                    <span *ngIf="Project.is_sena" class="badge bg-success">SENA</span>
+                    <span *ngIf="!Project.is_sena" class="badge bg-primary">NON-SENA</span>
                   </td>
                   <td class="text-center">
                     <div class="asset-image-cell">

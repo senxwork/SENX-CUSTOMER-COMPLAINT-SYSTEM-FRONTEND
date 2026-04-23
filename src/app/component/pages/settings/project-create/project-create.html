@@ -105,6 +105,26 @@
                 </div>
               </div>
 
+              <!-- Is SENA -->
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label d-block">
+                    เจ้าของโครงการ
+                  </label>
+                  <div class="form-check form-switch mt-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="is_sena"
+                      formControlName="is_sena"
+                    />
+                    <label class="form-check-label" for="is_sena">
+                      {{ projectForm.get('is_sena')?.value ? 'บริษัทเสนา' : 'ไม่ใช่บริษัทเสนา' }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+
               <!-- Project Logo -->
               <div class="col-md-6">
                 <div class="mb-3">

@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-api: "https://api-css.senxgroup.com/api",  
+ api: "https://api-css.senxgroup.com/api", 
   apiKey: "ca03na188ame03u1d78620de67282882a84",
 
 };

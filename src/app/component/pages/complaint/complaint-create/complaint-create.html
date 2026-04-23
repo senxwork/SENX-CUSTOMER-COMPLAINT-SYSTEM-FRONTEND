@@ -82,13 +82,10 @@
               </div>
 
               <div class="col-md-3 mb-3">
-                <label class="form-label">อีเมล์ลูกค้า <span class="text-danger">*</span></label>
+                <label class="form-label">อีเมล์ลูกค้า</label>
                 <input type="email" class="form-control" formControlName="email"
                   [class.is-invalid]="createForm.get('email')?.invalid && createForm.get('email')?.touched">
-                @if (createForm.get('email')?.hasError('required') && createForm.get('email')?.touched) {
-                  <div class="invalid-feedback">กรุณากรอกอีเมล์ลูกค้า</div>
-                }
-                @if (createForm.get('email')?.hasError('email') && !createForm.get('email')?.hasError('required') && createForm.get('email')?.touched) {
+                @if (createForm.get('email')?.hasError('email') && createForm.get('email')?.touched) {
                   <div class="invalid-feedback">รูปแบบอีเมล์ไม่ถูกต้อง</div>
                 }
               </div>

@@ -13,6 +13,7 @@ export interface ProjectItem {
   project_email?: string;
   project_type?: string;
   is_managed?: boolean;
+  is_sena?: boolean;
   remark?: string;
   created_at: string;
   updated_at: string;

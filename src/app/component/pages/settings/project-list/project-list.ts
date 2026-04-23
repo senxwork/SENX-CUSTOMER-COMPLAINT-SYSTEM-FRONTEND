@@ -17,6 +17,7 @@ export interface Project {
   project_email: string;
   project_type: string | null;
   is_managed: boolean;
+  is_sena: boolean;
   remark: string | null;
   created_at: string;
   updated_at: string;

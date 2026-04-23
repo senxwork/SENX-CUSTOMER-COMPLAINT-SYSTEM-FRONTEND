@@ -264,6 +264,45 @@ $color-cancelled: #991b1b;
 }
 
 // ==========================================
+// CCS Pills (โครงการเสนา / ประเภท / สถานะประกัน)
+// ==========================================
+.ccs-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ccs-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #475569;
+
+  i { font-size: 0.75rem; color: #64748b; }
+
+  &__label {
+    color: #64748b;
+  }
+
+  &__value {
+    font-weight: 600;
+    color: #1e293b;
+
+    &--success { color: #16a34a; }
+    &--neutral { color: #64748b; }
+    &--danger  { color: #dc2626; }
+    &--muted   { color: #94a3b8; font-weight: 500; }
+  }
+}
+
+// ==========================================
 // Info Cards (label on top, value below)
 // ==========================================
 .info-cards {

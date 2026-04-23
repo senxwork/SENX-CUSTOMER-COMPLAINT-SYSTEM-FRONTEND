@@ -144,7 +144,7 @@ export class ComplaintCreateComponent implements OnInit {
       customer_name: ['', Validators.required],
       house_name: ['', Validators.required],
       telephone: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.email]],
       job_detail: ['', Validators.required]
     });
   }
